@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard | Vision Mixing Centre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700&family=Montserrat:wght@500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0D0D0D; --bg-panel:#151210; --gold:#D4AF37; --gold-soft:#e8c766;
+  --white:#FFFFFF; --gray:#999999; --gray-dim:#6b6b6b; --line:rgba(212,175,55,0.18);
+  --ok:#3fae6b; --pending:#d4af37; --cancel:#c0483f;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{ background:var(--bg); color:var(--white); font-family:'Poppins',sans-serif; font-weight:300; }
+h1,h2,h3{ font-family:'Playfair Display',serif; font-weight:600; }
+.eyebrow{ font-family:'Montserrat',sans-serif; font-weight:600; font-size:0.68rem; letter-spacing:3px; text-transform:uppercase; color:var(--gold); }
+button{ font-family:'Montserrat',sans-serif; cursor:pointer; }
+a{ color:inherit; }
+
+/* ---------- login gate ---------- */
+#loginScreen{
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  background: radial-gradient(ellipse at 30% 20%, rgba(74,20,32,0.35), transparent 55%),
+              radial-gradient(ellipse at 80% 80%, rgba(212,175,55,0.1), transparent 50%),
+              linear-gradient(180deg,#0a0908,#0D0D0D 60%,#0a0908);
+}
+.login-box{
+  width:380px; max-width:90vw; padding:44px 36px; text-align:center;
+  border:1px solid var(--line); background:rgba(255,255,255,0.03); backdrop-filter:blur(10px);
+}
+.login-box h1{ font-size:1.5rem; margin:16px 0 6px; }
+.login-box p.note{ color:var(--gray-dim); font-size:0.78rem; margin-bottom:26px; }
+.login-box input{
+  width:100%; background:rgba(255,255,255,0.03); border:1px solid var(--line); color:var(--white);
+  padding:13px 14px; margin-bottom:14px; font-family:'Poppins',sans-serif;
+}
+.login-box input:focus{ outline:none; border-color:var(--gold); }
+.login-box button{
+  width:100%; background:var(--gold); color:#0D0D0D; border:none; padding:14px; font-size:0.75rem;
+  letter-spacing:2px; text-transform:uppercase; font-weight:600; margin-top:6px;
+}
+.login-box button:hover{ background:var(--gold-soft); }
+.login-err{ color:#e07a70; font-size:0.78rem; margin-top:12px; min-height:16px; }
+.demo-hint{ margin-top:22px; font-size:0.72rem; color:var(--gray-dim); border-top:1px solid var(--line); padding-top:16px; }
+.demo-hint b{ color:var(--gold); }
+
+/* ---------- shell ---------- */
+#dashboard{ display:none; min-height:100vh; }
+#dashboard.show{ display:flex; }
+.sidebar{
+  width:250px; flex-shrink:0; background:var(--bg-panel); border-right:1px solid var(--line);
+  min-height:100vh; padding:28px 20px; position:sticky; top:0; height:100vh; overflow-y:auto;
+}
+.sidebar .brand{ font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:4px; }
+.sidebar .brand span{ display:block; font-family:'Montserrat',sans-serif; font-size:0.58rem; letter-spacing:2px; color:var(--gold); margin-top:4px; }
+.sidebar nav{ margin-top:36px; }
+.sidebar nav button{
+  display:flex; align-items:center; gap:12px; width:100%; text-align:left; background:none; border:none;
+  color:var(--gray); padding:12px 14px; font-size:0.78rem; letter-spacing:0.6px; margin-bottom:4px; border-left:2px solid transparent;
+}
+.sidebar nav button svg{ width:16px; height:16px; stroke:var(--gray); fill:none; flex-shrink:0; }
+.sidebar nav button.active, .sidebar nav button:hover{ color:var(--gold); border-left-color:var(--gold); background:rgba(212,175,55,0.05); }
+.sidebar nav button.active svg, .sidebar nav button:hover svg{ stroke:var(--gold); }
+.sidebar .logout{ margin-top:30px; width:100%; background:none; border:1px solid var(--line); color:var(--gray); padding:11px; font-size:0.7rem; letter-spacing:1.4px; text-transform:uppercase; }
+.sidebar .logout:hover{ border-color:var(--gold); color:var(--gold); }
+
+.main{ flex:1; padding:34px 40px; max-width:100%; overflow-x:hidden; }
+.topbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; flex-wrap:wrap; gap:14px; }
+.topbar h2{ font-size:1.6rem; }
+.pill{ font-family:'Montserrat',sans-serif; font-size:0.68rem; letter-spacing:1px; color:var(--gray-dim); }
+
+.panel{ display:none; }
+.panel.active{ display:block; }
+
+.stats-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:18px; margin-bottom:34px; }
+.stat-card{ padding:24px; border:1px solid var(--line); background:rgba(255,255,255,0.02); }
+.stat-card .label{ font-family:'Montserrat',sans-serif; font-size:0.66rem; letter-spacing:1.4px; text-transform:uppercase; color:var(--gray); }
+.stat-card .num{ font-size:1.9rem; color:var(--gold); margin-top:10px; font-family:'Playfair Display',serif; }
+
+.section-title{ font-family:'Montserrat',sans-serif; font-size:0.72rem; letter-spacing:1.6px; text-transform:uppercase; color:var(--gray); margin:34px 0 14px; }
+.toolbar{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+.toolbar select, .toolbar input{ background:rgba(255,255,255,0.03); border:1px solid var(--line); color:var(--white); padding:9px 12px; font-size:0.8rem; font-family:'Poppins',sans-serif; }
+.btn-sm{ border:1px solid var(--gold); color:var(--gold); background:none; padding:9px 16px; font-size:0.68rem; letter-spacing:1.2px; text-transform:uppercase; }
+.btn-sm:hover{ background:var(--gold); color:#0D0D0D; }
+
+table{ width:100%; border-collapse:collapse; font-size:0.85rem; }
+thead th{ text-align:left; font-family:'Montserrat',sans-serif; font-size:0.64rem; letter-spacing:1.2px; text-transform:uppercase; color:var(--gray-dim); border-bottom:1px solid var(--line); padding:10px 12px; }
+tbody td{ padding:13px 12px; border-bottom:1px solid rgba(255,255,255,0.05); color:var(--gray); vertical-align:middle; }
+tbody tr:hover{ background:rgba(212,175,55,0.03); }
+.status{ font-family:'Montserrat',sans-serif; font-size:0.62rem; letter-spacing:1px; text-transform:uppercase; padding:4px 10px; border-radius:20px; display:inline-block; }
+.status.Confirmed{ background:rgba(63,174,107,0.15); color:var(--ok); }
+.status.Pending{ background:rgba(212,175,55,0.15); color:var(--gold); }
+.status.Completed{ background:rgba(120,150,220,0.15); color:#7896dc; }
+.status.Cancelled{ background:rgba(192,72,63,0.15); color:var(--cancel); }
+select.status-select{ background:#161412; border:1px solid var(--line); color:var(--gray); font-size:0.72rem; padding:6px 8px; }
+
+.grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+@media(max-width:1000px){ .grid-2{ grid-template-columns:1fr; } .main{padding:26px 20px;} #dashboard.show{flex-direction:column;} .sidebar{width:100%; height:auto; position:relative; min-height:auto;} }
+
+.card{ border:1px solid var(--line); padding:22px; background:rgba(255,255,255,0.02); }
+.msg-item{ border-bottom:1px solid rgba(255,255,255,0.05); padding:14px 0; }
+.msg-item:last-child{ border:none; }
+.msg-item .top{ display:flex; justify-content:space-between; font-size:0.8rem; color:var(--white); margin-bottom:4px; }
+.msg-item .top span{ color:var(--gray-dim); font-size:0.72rem; }
+.msg-item p{ color:var(--gray); font-size:0.82rem; }
+
+.upload-box{ border:1px dashed var(--line); padding:30px; text-align:center; margin-bottom:20px; }
+.upload-box input{ margin-top:10px; color:var(--gray); font-size:0.8rem; }
+.thumb-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:10px; }
+.thumb{ aspect-ratio:1; border:1px solid var(--line); overflow:hidden; background:#161412; }
+.thumb img{ width:100%; height:100%; object-fit:cover; }
+
+.testi-row{ display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid rgba(255,255,255,0.05); padding:16px 0; gap:14px;}
+.testi-row .del{ background:none; border:1px solid var(--line); color:var(--cancel); padding:6px 10px; font-size:0.65rem; }
+
+.calendar-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+.cal-cell{ aspect-ratio:1; border:1px solid var(--line); padding:6px; font-size:0.72rem; color:var(--gray-dim); position:relative; }
+.cal-cell.has-event{ border-color:var(--gold); }
+.cal-cell .dot{ width:5px; height:5px; border-radius:50%; background:var(--gold); position:absolute; bottom:6px; left:6px; }
+.cal-head{ font-family:'Montserrat',sans-serif; font-size:0.62rem; text-align:center; color:var(--gray-dim); letter-spacing:1px; margin-bottom:6px; }
+
+.notice-bar{ background:linear-gradient(90deg, rgba(212,175,55,0.08), rgba(74,20,32,0.15)); border:1px solid var(--line); padding:14px 18px; font-size:0.8rem; color:var(--gray); margin-bottom:26px; }
+.notice-bar b{ color:var(--gold); }
+</style>
+</head>
+<body>
+
+<!-- ===================== LOGIN GATE ===================== -->
+<div id="loginScreen">
+  <div class="login-box">
+    <span class="eyebrow">Admin Access</span>
+    <h1>Vision Mixing Centre</h1>
+    <p class="note">Studio management dashboard</p>
+    <input type="text" id="loginUser" placeholder="Username" autocomplete="off">
+    <input type="password" id="loginPass" placeholder="Password" autocomplete="off">
+    <button id="loginBtn">Sign In</button>
+    <div class="login-err" id="loginErr"></div>
+    <div class="demo-hint">Demo credentials — <b>admin / vmc2026</b><br>This check runs in your browser only. A real deployment needs server-side authentication.</div>
+  </div>
+</div>
+
+<!-- ===================== DASHBOARD ===================== -->
+<div id="dashboard">
+  <aside class="sidebar">
+    <div class="brand">VISION MIXING CENTRE<span>ADMIN PANEL</span></div>
+    <nav id="navBtns">
+      <button data-panel="overview" class="active"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Overview</button>
+      <button data-panel="bookings"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18M8 2v4M16 2v4"/></svg> Bookings</button>
+      <button data-panel="messages"><svg viewBox="0 0 24 24"><path d="M4 5h16v12H7l-3 3z"/></svg> Messages</button>
+      <button data-panel="portfolio"><svg viewBox="0 0 24 24"><path d="M4 7h3l2-3h6l2 3h3v13H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Portfolio Upload</button>
+      <button data-panel="testimonials"><svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.6L22 9.3l-5 4.9 1.2 7.1L12 17.8 5.8 21.3 7 14.2 2 9.3l7.1-.7z"/></svg> Testimonials</button>
+      <button data-panel="calendar"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18M8 2v4M16 2v4"/></svg> Calendar</button>
+      <button data-panel="invoices"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/><path d="M9 9h6M9 13h6M9 17h4"/></svg> Invoices</button>
+      <button data-panel="notifications"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg> Notifications</button>
+    </nav>
+    <button class="logout" id="logoutBtn">Log Out</button>
+  </aside>
+
+  <main class="main">
+    <div class="notice-bar">Sample data shown below is <b>mock data</b> for demonstration. Connect a real database to replace it with live bookings and messages.</div>
+
+    <!-- OVERVIEW -->
+    <div class="panel active" id="panel-overview">
+      <div class="topbar"><h2>Dashboard Overview</h2><span class="pill" id="todayDate"></span></div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="label">Today's Bookings</div><div class="num" id="statToday">0</div></div>
+        <div class="stat-card"><div class="label">Pending Bookings</div><div class="num" id="statPending">0</div></div>
+        <div class="stat-card"><div class="label">Completed Bookings</div><div class="num" id="statCompleted">0</div></div>
+        <div class="stat-card"><div class="label">Revenue (Advance Collected)</div><div class="num" id="statRevenue">₹0</div></div>
+        <div class="stat-card"><div class="label">Total Clients</div><div class="num" id="statClients">0</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="section-title" style="margin-top:0;">Recent Bookings</div>
+          <table><thead><tr><th>Client</th><th>Service</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody id="recentBookingsBody"></tbody></table>
+        </div>
+        <div class="card">
+          <div class="section-title" style="margin-top:0;">Recent Messages</div>
+          <div id="recentMessages"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOOKINGS -->
+    <div class="panel" id="panel-bookings">
+      <div class="topbar"><h2>Bookings</h2>
+        <div class="toolbar">
+          <select id="filterStatus">
+            <option value="All">All Statuses</option>
+            <option>Pending</option><option>Confirmed</option><option>Completed</option><option>Cancelled</option>
+          </select>
+          <button class="btn-sm" id="exportExcel">Export Excel (CSV)</button>
+          <button class="btn-sm" id="exportPdfBtn">Export PDF</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>Booking ID</th><th>Client</th><th>Service</th><th>Date</th><th>Venue</th><th>Budget</th><th>Status</th></tr></thead>
+        <tbody id="bookingsBody"></tbody>
+      </table>
+    </div>
+
+    <!-- MESSAGES -->
+    <div class="panel" id="panel-messages">
+      <div class="topbar"><h2>Contact Messages</h2></div>
+      <div class="card" id="messagesList"></div>
+    </div>
+
+    <!-- PORTFOLIO UPLOAD -->
+    <div class="panel" id="panel-portfolio">
+      <div class="topbar"><h2>Portfolio Upload</h2></div>
+      <div class="upload-box">
+        <div class="eyebrow" style="display:block; margin-bottom:8px;">Drop images to preview</div>
+        <input type="file" id="portfolioUpload" multiple accept="image/*">
+        <p style="color:var(--gray-dim); font-size:0.72rem; margin-top:10px;">Preview only in this demo — wire this to real storage (e.g. S3, Cloudinary, Supabase Storage) to publish live.</p>
+      </div>
+      <div class="thumb-grid" id="thumbGrid"></div>
+    </div>
+
+    <!-- TESTIMONIALS -->
+    <div class="panel" id="panel-testimonials">
+      <div class="topbar"><h2>Testimonials</h2></div>
+      <div class="card" id="testiList"></div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="panel" id="panel-calendar">
+      <div class="topbar"><h2>Booking Calendar</h2><span class="pill" id="calMonthLabel"></span></div>
+      <div class="cal-head-row calendar-grid">
+        <div class="cal-head">Sun</div><div class="cal-head">Mon</div><div class="cal-head">Tue</div><div class="cal-head">Wed</div><div class="cal-head">Thu</div><div class="cal-head">Fri</div><div class="cal-head">Sat</div>
+      </div>
+      <div class="calendar-grid" id="calendarGrid" style="margin-top:6px;"></div>
+    </div>
+
+    <!-- INVOICES -->
+    <div class="panel" id="panel-invoices">
+      <div class="topbar"><h2>Invoices</h2></div>
+      <table>
+        <thead><tr><th>Invoice #</th><th>Client</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+        <tbody id="invoiceBody"></tbody>
+      </table>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div class="panel" id="panel-notifications">
+      <div class="topbar"><h2>Send Notifications</h2></div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="section-title" style="margin-top:0;">Compose</div>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <select id="notifChannel" style="background:rgba(255,255,255,0.03); border:1px solid var(--line); color:var(--white); padding:11px;">
+              <option>Email</option><option>SMS</option><option>WhatsApp</option>
+            </select>
+            <textarea id="notifText" placeholder="Message to client..." style="background:rgba(255,255,255,0.03); border:1px solid var(--line); color:var(--white); padding:11px; min-height:100px; font-family:'Poppins',sans-serif;"></textarea>
+            <button class="btn-sm" id="sendNotifBtn">Send</button>
+            <div id="notifResult" style="font-size:0.78rem; color:var(--gray);"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-title" style="margin-top:0;">What's needed to make this real</div>
+          <p style="color:var(--gray); font-size:0.85rem; line-height:1.8;">
+            <b style="color:var(--gold);">Email</b> — an account with Postmark, SendGrid or SES.<br>
+            <b style="color:var(--gold);">SMS</b> — a Twilio or MSG91 account with an approved sender ID.<br>
+            <b style="color:var(--gold);">WhatsApp</b> — a Meta WhatsApp Business API account (via Twilio or 360dialog) with approved message templates.<br><br>
+            Once you have any of these, I can write the real backend call — I just can't create the accounts or hold the API keys myself.
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ---------- auth (demo only) ---------- */
+const DEMO_USER='admin', DEMO_PASS='vmc2026';
+document.getElementById('loginBtn').addEventListener('click', doLogin);
+document.getElementById('loginPass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+function doLogin(){
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value;
+  const err=document.getElementById('loginErr');
+  if(u===DEMO_USER && p===DEMO_PASS){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('dashboard').classList.add('show');
+    initDashboard();
+  } else {
+    err.textContent='Invalid credentials. Try admin / vmc2026.';
+  }
+}
+document.getElementById('logoutBtn').addEventListener('click', ()=>{
+  document.getElementById('dashboard').classList.remove('show');
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('loginUser').value=''; document.getElementById('loginPass').value='';
+});
+
+/* ---------- nav ---------- */
+document.getElementById('navBtns').addEventListener('click', e=>{
+  const btn=e.target.closest('button'); if(!btn) return;
+  document.querySelectorAll('#navBtns button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+btn.dataset.panel).classList.add('active');
+});
+
+/* ---------- mock data ---------- */
+const services=["Wedding Photography","Wedding Cinematic Film","Engagement Shoot","Pre-Wedding Shoot","Drone Shoot","Portrait Photography","Corporate Event"];
+const statuses=["Pending","Confirmed","Completed","Cancelled"];
+const names=["Aisha & Zubair","Insha & Adil","Sana & Owais","Rafiq & Nusrat","Mehak & Bilal","Faiza & Tariq","Ayesha & Junaid","Zara & Rayees"];
+const venues=["Radisson Blu, Srinagar","Lalit Grand Palace","Private Residence, Nowshera","Nigeen Club","Houseboat, Dal Lake","Banquet Hall, Rajbagh"];
+function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function pad(n){ return n<10? '0'+n : n; }
+let bookings=[];
+for(let i=0;i<14;i++){
+  const d=new Date(2026,6,1+Math.floor(Math.random()*90));
+  bookings.push({
+    id:'VMC-'+Math.random().toString(36).slice(2,8).toUpperCase(),
+    client:rand(names), service:rand(services),
+    date:`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`,
+    venue:rand(venues), budget:(20+Math.floor(Math.random()*180))*1000,
+    advance:(5+Math.floor(Math.random()*30))*1000,
+    status: i<3? 'Pending' : rand(statuses)
+  });
+}
+bookings.sort((a,b)=> a.date.localeCompare(b.date));
+
+let messages=[
+  {name:'Rafiq Ahmad', email:'rafiq@example.com', subject:'Availability check', body:'Hi, are you free on 14th September for a half-day engagement shoot?', time:'2 hrs ago'},
+  {name:'Nusrat Jan', email:'nusrat@example.com', subject:'Album reprint', body:'We need an extra copy of our wedding album printed, please advise cost.', time:'1 day ago'},
+  {name:'Bilal Wani', email:'bilal@example.com', subject:'Drone footage query', body:'Can drone shoots be added to the Silver package as an add-on?', time:'3 days ago'},
+];
+
+let testimonials=[
+  {name:'Aisha & Zubair', loc:'Srinagar', stars:5, text:"They captured our three-day wedding like they'd known our family for years."},
+  {name:'Insha & Adil', loc:'Anantnag', stars:5, text:'The highlight film still gives us chills. Worth every rupee.'},
+  {name:'Sana & Owais', loc:'Baramulla', stars:5, text:"Our pre-wedding shoot at Gulmarg looked like a film set."},
+];
+
+/* ---------- render ---------- */
+function initDashboard(){
+  document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-IN',{weekday:'long', year:'numeric', month:'long', day:'numeric'});
+  renderStats(); renderRecentBookings(); renderRecentMessages(); renderBookingsTable();
+  renderMessages(); renderTestimonials(); renderCalendar(); renderInvoices();
+}
+
+function renderStats(){
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('statToday').textContent = bookings.filter(b=>b.date===today).length || Math.floor(Math.random()*3);
+  document.getElementById('statPending').textContent = bookings.filter(b=>b.status==='Pending').length;
+  document.getElementById('statCompleted').textContent = bookings.filter(b=>b.status==='Completed').length;
+  const revenue = bookings.reduce((s,b)=> s + (b.status!=='Cancelled'? b.advance:0), 0);
+  document.getElementById('statRevenue').textContent = '₹' + revenue.toLocaleString('en-IN');
+  document.getElementById('statClients').textContent = new Set(bookings.map(b=>b.client)).size;
+}
+
+function statusBadge(s){ return `<span class="status ${s}">${s}</span>`; }
+
+function renderRecentBookings(){
+  const body=document.getElementById('recentBookingsBody');
+  body.innerHTML = bookings.slice(0,5).map(b=>`<tr><td>${b.client}</td><td>${b.service}</td><td>${b.date}</td><td>${statusBadge(b.status)}</td></tr>`).join('');
+}
+function renderRecentMessages(){
+  document.getElementById('recentMessages').innerHTML = messages.slice(0,3).map(m=>`
+    <div class="msg-item"><div class="top">${m.name} <span>${m.time}</span></div><p>${m.subject}</p></div>`).join('');
+}
+
+function renderBookingsTable(filter='All'){
+  const body=document.getElementById('bookingsBody');
+  const list = filter==='All'? bookings : bookings.filter(b=>b.status===filter);
+  body.innerHTML = list.map((b,i)=>`
+    <tr>
+      <td>${b.id}</td><td>${b.client}</td><td>${b.service}</td><td>${b.date}</td><td>${b.venue}</td>
+      <td>₹${b.budget.toLocaleString('en-IN')}</td>
+      <td><select class="status-select" data-id="${b.id}">
+        ${statuses.map(s=>`<option ${s===b.status?'selected':''}>${s}</option>`).join('')}
+      </select></td>
+    </tr>`).join('');
+  body.querySelectorAll('.status-select').forEach(sel=>{
+    sel.addEventListener('change', e=>{
+      const bk = bookings.find(b=>b.id===e.target.dataset.id);
+      if(bk){ bk.status=e.target.value; renderStats(); renderRecentBookings(); }
+    });
+  });
+}
+document.getElementById('filterStatus').addEventListener('change', e=> renderBookingsTable(e.target.value));
+
+function renderMessages(){
+  document.getElementById('messagesList').innerHTML = messages.map(m=>`
+    <div class="msg-item"><div class="top">${m.name} — ${m.subject} <span>${m.time}</span></div><p>${m.body}<br><span style="color:var(--gray-dim); font-size:0.72rem;">${m.email}</span></p></div>`).join('');
+}
+
+function renderTestimonials(){
+  document.getElementById('testiList').innerHTML = testimonials.map((t,i)=>`
+    <div class="testi-row"><div>
+      <div style="color:var(--gold); font-size:0.8rem; letter-spacing:1px;">${'★'.repeat(t.stars)}</div>
+      <p style="margin-top:4px; font-size:0.85rem; color:var(--gray);">"${t.text}"</p>
+      <div style="font-size:0.72rem; color:var(--gray-dim); margin-top:4px;">${t.name}, ${t.loc}</div>
+    </div><button class="del" data-i="${i}">Remove</button></div>`).join('');
+  document.querySelectorAll('.testi-row .del').forEach(btn=>{
+    btn.addEventListener('click', e=>{ testimonials.splice(+e.target.dataset.i,1); renderTestimonials(); });
+  });
+}
+
+function renderCalendar(){
+  const now=new Date(2026,6,1);
+  document.getElementById('calMonthLabel').textContent = now.toLocaleDateString('en-IN',{month:'long', year:'numeric'});
+  const firstDay=new Date(now.getFullYear(),now.getMonth(),1).getDay();
+  const daysInMonth=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+  const eventDates = new Set(bookings.map(b=>b.date));
+  const grid=document.getElementById('calendarGrid'); grid.innerHTML='';
+  for(let i=0;i<firstDay;i++){ grid.innerHTML+='<div class="cal-cell" style="border:none;"></div>'; }
+  for(let d=1; d<=daysInMonth; d++){
+    const dateStr = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(d)}`;
+    const has = eventDates.has(dateStr);
+    grid.innerHTML += `<div class="cal-cell ${has?'has-event':''}">${d}${has?'<div class="dot"></div>':''}</div>`;
+  }
+}
+
+function renderInvoices(){
+  document.getElementById('invoiceBody').innerHTML = bookings.slice(0,8).map((b,i)=>`
+    <tr><td>INV-${1000+i}</td><td>${b.client}</td><td>₹${b.advance.toLocaleString('en-IN')}</td>
+    <td>${statusBadge(b.status==='Cancelled'?'Cancelled':(b.status==='Pending'?'Pending':'Confirmed'))}</td>
+    <td><button class="btn-sm" onclick="alert('Wire this to a real PDF generator (e.g. the pdf skill / a server route) to download an actual invoice.')">Download</button></td></tr>`).join('');
+}
+
+/* ---------- portfolio upload preview ---------- */
+document.getElementById('portfolioUpload').addEventListener('change', function(e){
+  const grid=document.getElementById('thumbGrid');
+  [...e.target.files].forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const div=document.createElement('div'); div.className='thumb';
+      div.innerHTML=`<img src="${ev.target.result}" alt="${file.name}">`;
+      grid.appendChild(div);
+    };
+    reader.readAsDataURL(file);
+  });
+});
+
+/* ---------- export CSV ---------- */
+document.getElementById('exportExcel').addEventListener('click', ()=>{
+  const rows=[['Booking ID','Client','Service','Date','Venue','Budget','Advance','Status']];
+  bookings.forEach(b=> rows.push([b.id,b.client,b.service,b.date,b.venue,b.budget,b.advance,b.status]));
+  const csv = rows.map(r=> r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='vmc-bookings.csv'; a.click();
+  URL.revokeObjectURL(url);
+});
+document.getElementById('exportPdfBtn').addEventListener('click', ()=>{
+  alert('PDF export needs a PDF-generation step (e.g. a small server route or a library like jsPDF) — happy to wire this up on request.');
+});
+
+/* ---------- notifications ---------- */
+document.getElementById('sendNotifBtn').addEventListener('click', ()=>{
+  const channel=document.getElementById('notifChannel').value;
+  const text=document.getElementById('notifText').value.trim();
+  const result=document.getElementById('notifResult');
+  if(!text){ result.textContent='Write a message first.'; return; }
+  result.innerHTML = `<span style="color:var(--gold);">Queued (demo only)</span> — in production this would call your ${channel} provider's API to actually deliver it.`;
+});
+</script>
+</body>
+</html>
