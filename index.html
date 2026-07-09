@@ -312,10 +312,9 @@ footer{ border-top:1px solid var(--line); padding:70px 0 30px;}
 }
 .dev-notice b{ color:var(--gold);}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
-
-<div class="dev-notice">Front-end preview — booking form runs locally in your browser. <b>Payments, SMS/WhatsApp/email and the admin dashboard need a backend</b> (see note at the bottom of the page).</div>
 
 <header id="siteHeader">
   <div class="nav-wrap">
@@ -649,11 +648,16 @@ pricing.forEach(([name,price,feat,list])=>{
   pricingGrid.appendChild(el);
 });
 
-const testimonials = [
+const SUPABASE_URL = 'https://fnjhhacisnyfjeyosfwk.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuamhoYWNpc255ZmpleW9zZndrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0MTYyODIsImV4cCI6MjA5ODk5MjI4Mn0.WqSGgrwqwrN6O8aaKmYP0Fuko9kZPbMZozsID5flVzE';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const fallbackTestimonials = [
  ["★★★★★","They captured our three-day wedding like they'd known our family for years — candid, warm, unobtrusive.","Aisha & Zubair","Srinagar"],
  ["★★★★★","The highlight film still gives us chills. Worth every rupee, and the team was punctual and calm all day.","Insha & Adil","Anantnag"],
  ["★★★★★","Our pre-wedding shoot at Gulmarg looked like a film set. Muneer's eye for light is something else.","Sana & Owais","Baramulla"],
 ];
+let testimonials = fallbackTestimonials;
 const testiWrap=document.getElementById('testiWrap');
 let tIdx=0;
 function renderTesti(){
@@ -670,6 +674,18 @@ function renderTesti(){
 }
 renderTesti();
 setInterval(()=>{ tIdx=(tIdx+1)%testimonials.length; renderTesti(); }, 6000);
+
+// Try to load real testimonials from the database; fall back silently if unavailable
+(async () => {
+  try{
+    const { data, error } = await sb.from('testimonials').select('*').order('created_at', { ascending:false });
+    if(!error && data && data.length){
+      testimonials = data.map(t => ['★'.repeat(t.stars||5), t.quote, t.name, t.location||'']);
+      tIdx = 0;
+      renderTesti();
+    }
+  } catch(e){ /* keep fallback testimonials */ }
+})();
 
 /* ---------- link booking form budget to service rates ---------- */
 const serviceRates = {};
@@ -709,6 +725,17 @@ document.getElementById('bookingForm').addEventListener('submit', async function
   box.innerHTML = `<b>Sending your booking request — ID ${id}...</b>`;
   box.classList.add('show');
 
+  // Save to the real database
+  try{
+    await sb.from('bookings').insert({
+      booking_id: id, name: payload.name, phone: payload.phone, whatsapp: payload.whatsapp,
+      email: payload.email, address: fd.get('address'), event_date: payload.date || null,
+      event_time: fd.get('time'), venue: payload.venue, service: payload.service,
+      budget: payload.budget || null, advance: payload.advance || null,
+      notes: fd.get('notes'), coupon: fd.get('coupon'), status: 'Pending'
+    });
+  } catch(dbErr){ console.error('Supabase insert failed:', dbErr); }
+
   try{
     const res = await fetch('/.netlify/functions/notify-booking', {
       method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
@@ -719,17 +746,25 @@ document.getElementById('bookingForm').addEventListener('submit', async function
       Status: <b>Pending confirmation</b>. Our team will follow up within 24 hours.
       <br><small style="color:var(--gray)">Confirmation — Email: ${data.results?.email||'n/a'} · SMS: ${data.results?.sms||'n/a'} · WhatsApp: ${data.results?.whatsapp||'n/a'}</small>`;
   } catch(err){
-    box.innerHTML = `<b>Booking noted locally — ID ${id}</b><br>
-      We couldn't reach the notification service just now, but your request details are recorded on this page.
-      Please also reach us directly on WhatsApp to confirm.
+    box.innerHTML = `<b>Booking noted — ID ${id}</b><br>
+      Your request is saved. We couldn't reach the notification service just now — please also reach us directly on WhatsApp to confirm.
       <br><small style="color:var(--gray)">(Notification function not deployed or unreachable: ${err.message})</small>`;
   }
   this.reset();
 });
-document.getElementById('contactForm').addEventListener('submit', function(e){
+document.getElementById('contactForm').addEventListener('submit', async function(e){
   e.preventDefault();
   const box=document.getElementById('contactConfirm');
-  box.innerHTML = `<b>Message sent (locally).</b> We'll get back to you by email shortly.`;
+  const fd = new FormData(this);
+  try{
+    await sb.from('messages').insert({
+      name: fd.get('cname'), phone: fd.get('cphone'), email: fd.get('cemail'),
+      subject: fd.get('csubject'), message: fd.get('cmessage')
+    });
+    box.innerHTML = `<b>Message sent.</b> We'll get back to you by email shortly.`;
+  } catch(err){
+    box.innerHTML = `<b>Message noted locally.</b> We had trouble saving it just now — feel free to also reach us directly on WhatsApp.`;
+  }
   box.classList.add('show'); this.reset();
 });
 

@@ -6,6 +6,7 @@
 <title>Admin Dashboard | Vision Mixing Centre</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700&family=Montserrat:wght@500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 :root{
   --bg:#0D0D0D; --bg-panel:#151210; --gold:#D4AF37; --gold-soft:#e8c766;
@@ -133,11 +134,11 @@ select.status-select{ background:#161412; border:1px solid var(--line); color:va
     <span class="eyebrow">Admin Access</span>
     <h1>Vision Mixing Centre</h1>
     <p class="note">Studio management dashboard</p>
-    <input type="text" id="loginUser" placeholder="Username" autocomplete="off">
+    <input type="email" id="loginUser" placeholder="Email" autocomplete="off">
     <input type="password" id="loginPass" placeholder="Password" autocomplete="off">
     <button id="loginBtn">Sign In</button>
     <div class="login-err" id="loginErr"></div>
-    <div class="demo-hint">Demo credentials — <b>admin / vmc2026</b><br>This check runs in your browser only. A real deployment needs server-side authentication.</div>
+    <div class="demo-hint">Real login — checked securely by Supabase, not by this page.</div>
   </div>
 </div>
 
@@ -159,7 +160,7 @@ select.status-select{ background:#161412; border:1px solid var(--line); color:va
   </aside>
 
   <main class="main">
-    <div class="notice-bar">Sample data shown below is <b>mock data</b> for demonstration. Connect a real database to replace it with live bookings and messages.</div>
+    <div class="notice-bar">Live data from your Supabase database — real bookings and messages appear here as customers submit them.</div>
 
     <!-- OVERVIEW -->
     <div class="panel active" id="panel-overview">
@@ -222,6 +223,15 @@ select.status-select{ background:#161412; border:1px solid var(--line); color:va
     <!-- TESTIMONIALS -->
     <div class="panel" id="panel-testimonials">
       <div class="topbar"><h2>Testimonials</h2></div>
+      <div class="card" style="margin-bottom:22px;">
+        <div class="section-title" style="margin-top:0;">Add a new testimonial</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+          <input type="text" id="newTName" placeholder="Client name (e.g. Aisha & Zubair)" style="background:rgba(255,255,255,0.03); border:1px solid var(--line); color:var(--white); padding:11px;">
+          <input type="text" id="newTLoc" placeholder="Location (e.g. Srinagar)" style="background:rgba(255,255,255,0.03); border:1px solid var(--line); color:var(--white); padding:11px;">
+        </div>
+        <textarea id="newTText" placeholder="Their review..." style="width:100%; background:rgba(255,255,255,0.03); border:1px solid var(--line); color:var(--white); padding:11px; min-height:80px; font-family:'Poppins',sans-serif; margin-bottom:12px;"></textarea>
+        <button class="btn-sm" id="addTestiBtn">Add Testimonial</button>
+      </div>
       <div class="card" id="testiList"></div>
     </div>
 
@@ -273,27 +283,52 @@ select.status-select{ background:#161412; border:1px solid var(--line); color:va
 </div>
 
 <script>
-/* ---------- auth (demo only) ---------- */
-const DEMO_USER='admin', DEMO_PASS='vmc2026';
+/* ---------- Supabase client ---------- */
+const SUPABASE_URL = 'https://fnjhhacisnyfjeyosfwk.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuamhoYWNpc255ZmpleW9zZndrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0MTYyODIsImV4cCI6MjA5ODk5MjI4Mn0.WqSGgrwqwrN6O8aaKmYP0Fuko9kZPbMZozsID5flVzE';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const statuses=["Pending","Confirmed","Completed","Cancelled"];
+let bookings = [];
+let messages = [];
+let testimonials = [];
+
+/* ---------- auth ---------- */
 document.getElementById('loginBtn').addEventListener('click', doLogin);
 document.getElementById('loginPass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
-function doLogin(){
-  const u=document.getElementById('loginUser').value.trim();
-  const p=document.getElementById('loginPass').value;
+
+async function doLogin(){
+  const email=document.getElementById('loginUser').value.trim();
+  const password=document.getElementById('loginPass').value;
   const err=document.getElementById('loginErr');
-  if(u===DEMO_USER && p===DEMO_PASS){
-    document.getElementById('loginScreen').style.display='none';
-    document.getElementById('dashboard').classList.add('show');
-    initDashboard();
-  } else {
-    err.textContent='Invalid credentials. Try admin / vmc2026.';
+  err.textContent = 'Signing in...';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if(error){
+    err.textContent = 'Invalid email or password.';
+    return;
   }
+  err.textContent = '';
+  showDashboard();
 }
-document.getElementById('logoutBtn').addEventListener('click', ()=>{
+
+document.getElementById('logoutBtn').addEventListener('click', async ()=>{
+  await sb.auth.signOut();
   document.getElementById('dashboard').classList.remove('show');
   document.getElementById('loginScreen').style.display='flex';
   document.getElementById('loginUser').value=''; document.getElementById('loginPass').value='';
 });
+
+function showDashboard(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('dashboard').classList.add('show');
+  initDashboard();
+}
+
+// Auto-login if there's already a valid session (e.g. page refresh)
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if(session) showDashboard();
+})();
 
 /* ---------- nav ---------- */
 document.getElementById('navBtns').addEventListener('click', e=>{
@@ -304,82 +339,85 @@ document.getElementById('navBtns').addEventListener('click', e=>{
   document.getElementById('panel-'+btn.dataset.panel).classList.add('active');
 });
 
-/* ---------- mock data ---------- */
-const services=["Wedding Photography","Wedding Cinematic Film","Engagement Shoot","Pre-Wedding Shoot","Drone Shoot","Portrait Photography","Corporate Event"];
-const statuses=["Pending","Confirmed","Completed","Cancelled"];
-const names=["Aisha & Zubair","Insha & Adil","Sana & Owais","Rafiq & Nusrat","Mehak & Bilal","Faiza & Tariq","Ayesha & Junaid","Zara & Rayees"];
-const venues=["Radisson Blu, Srinagar","Lalit Grand Palace","Private Residence, Nowshera","Nigeen Club","Houseboat, Dal Lake","Banquet Hall, Rajbagh"];
-function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 function pad(n){ return n<10? '0'+n : n; }
-let bookings=[];
-for(let i=0;i<14;i++){
-  const d=new Date(2026,6,1+Math.floor(Math.random()*90));
-  bookings.push({
-    id:'VMC-'+Math.random().toString(36).slice(2,8).toUpperCase(),
-    client:rand(names), service:rand(services),
-    date:`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`,
-    venue:rand(venues), budget:(20+Math.floor(Math.random()*180))*1000,
-    advance:(5+Math.floor(Math.random()*30))*1000,
-    status: i<3? 'Pending' : rand(statuses)
-  });
-}
-bookings.sort((a,b)=> a.date.localeCompare(b.date));
 
-let messages=[
-  {name:'Rafiq Ahmad', email:'rafiq@example.com', subject:'Availability check', body:'Hi, are you free on 14th September for a half-day engagement shoot?', time:'2 hrs ago'},
-  {name:'Nusrat Jan', email:'nusrat@example.com', subject:'Album reprint', body:'We need an extra copy of our wedding album printed, please advise cost.', time:'1 day ago'},
-  {name:'Bilal Wani', email:'bilal@example.com', subject:'Drone footage query', body:'Can drone shoots be added to the Silver package as an add-on?', time:'3 days ago'},
-];
-
-let testimonials=[
-  {name:'Aisha & Zubair', loc:'Srinagar', stars:5, text:"They captured our three-day wedding like they'd known our family for years."},
-  {name:'Insha & Adil', loc:'Anantnag', stars:5, text:'The highlight film still gives us chills. Worth every rupee.'},
-  {name:'Sana & Owais', loc:'Baramulla', stars:5, text:"Our pre-wedding shoot at Gulmarg looked like a film set."},
-];
-
-/* ---------- render ---------- */
-function initDashboard(){
+/* ---------- load real data ---------- */
+async function initDashboard(){
   document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-IN',{weekday:'long', year:'numeric', month:'long', day:'numeric'});
+  await Promise.all([loadBookings(), loadMessages(), loadTestimonials()]);
   renderStats(); renderRecentBookings(); renderRecentMessages(); renderBookingsTable();
   renderMessages(); renderTestimonials(); renderCalendar(); renderInvoices();
 }
 
+async function loadBookings(){
+  const { data, error } = await sb.from('bookings').select('*').order('created_at', { ascending:false });
+  bookings = error ? [] : data;
+  if(error) console.error('loadBookings error', error);
+}
+async function loadMessages(){
+  const { data, error } = await sb.from('messages').select('*').order('created_at', { ascending:false });
+  messages = error ? [] : data;
+  if(error) console.error('loadMessages error', error);
+}
+async function loadTestimonials(){
+  const { data, error } = await sb.from('testimonials').select('*').order('created_at', { ascending:false });
+  testimonials = error ? [] : data;
+  if(error) console.error('loadTestimonials error', error);
+}
+
+function timeAgo(iso){
+  if(!iso) return '';
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs/60000);
+  if(mins < 60) return mins + ' min ago';
+  const hrs = Math.floor(mins/60);
+  if(hrs < 24) return hrs + ' hrs ago';
+  return Math.floor(hrs/24) + ' days ago';
+}
+
 function renderStats(){
   const today = new Date().toISOString().slice(0,10);
-  document.getElementById('statToday').textContent = bookings.filter(b=>b.date===today).length || Math.floor(Math.random()*3);
+  document.getElementById('statToday').textContent = bookings.filter(b=>b.event_date===today).length;
   document.getElementById('statPending').textContent = bookings.filter(b=>b.status==='Pending').length;
   document.getElementById('statCompleted').textContent = bookings.filter(b=>b.status==='Completed').length;
-  const revenue = bookings.reduce((s,b)=> s + (b.status!=='Cancelled'? b.advance:0), 0);
+  const revenue = bookings.reduce((s,b)=> s + (b.status!=='Cancelled' ? (Number(b.advance)||0) : 0), 0);
   document.getElementById('statRevenue').textContent = '₹' + revenue.toLocaleString('en-IN');
-  document.getElementById('statClients').textContent = new Set(bookings.map(b=>b.client)).size;
+  document.getElementById('statClients').textContent = new Set(bookings.map(b=>b.name)).size;
 }
 
 function statusBadge(s){ return `<span class="status ${s}">${s}</span>`; }
 
 function renderRecentBookings(){
   const body=document.getElementById('recentBookingsBody');
-  body.innerHTML = bookings.slice(0,5).map(b=>`<tr><td>${b.client}</td><td>${b.service}</td><td>${b.date}</td><td>${statusBadge(b.status)}</td></tr>`).join('');
+  body.innerHTML = bookings.slice(0,5).map(b=>`<tr><td>${b.name}</td><td>${b.service||''}</td><td>${b.event_date||''}</td><td>${statusBadge(b.status)}</td></tr>`).join('')
+    || `<tr><td colspan="4" style="color:var(--gray-dim);">No bookings yet.</td></tr>`;
 }
 function renderRecentMessages(){
   document.getElementById('recentMessages').innerHTML = messages.slice(0,3).map(m=>`
-    <div class="msg-item"><div class="top">${m.name} <span>${m.time}</span></div><p>${m.subject}</p></div>`).join('');
+    <div class="msg-item"><div class="top">${m.name} <span>${timeAgo(m.created_at)}</span></div><p>${m.subject||''}</p></div>`).join('')
+    || `<p style="color:var(--gray-dim); font-size:0.85rem;">No messages yet.</p>`;
 }
 
 function renderBookingsTable(filter='All'){
   const body=document.getElementById('bookingsBody');
   const list = filter==='All'? bookings : bookings.filter(b=>b.status===filter);
-  body.innerHTML = list.map((b,i)=>`
+  body.innerHTML = list.map(b=>`
     <tr>
-      <td>${b.id}</td><td>${b.client}</td><td>${b.service}</td><td>${b.date}</td><td>${b.venue}</td>
-      <td>₹${b.budget.toLocaleString('en-IN')}</td>
+      <td>${b.booking_id}</td><td>${b.name}</td><td>${b.service||''}</td><td>${b.event_date||''}</td><td>${b.venue||''}</td>
+      <td>₹${Number(b.budget||0).toLocaleString('en-IN')}</td>
       <td><select class="status-select" data-id="${b.id}">
         ${statuses.map(s=>`<option ${s===b.status?'selected':''}>${s}</option>`).join('')}
       </select></td>
-    </tr>`).join('');
+    </tr>`).join('') || `<tr><td colspan="7" style="color:var(--gray-dim);">No bookings yet.</td></tr>`;
   body.querySelectorAll('.status-select').forEach(sel=>{
-    sel.addEventListener('change', e=>{
-      const bk = bookings.find(b=>b.id===e.target.dataset.id);
-      if(bk){ bk.status=e.target.value; renderStats(); renderRecentBookings(); }
+    sel.addEventListener('change', async e=>{
+      const id = e.target.dataset.id;
+      const newStatus = e.target.value;
+      const { error } = await sb.from('bookings').update({ status:newStatus }).eq('id', id);
+      if(error){ alert('Failed to update status: ' + error.message); return; }
+      const bk = bookings.find(b=>b.id===id);
+      if(bk) bk.status = newStatus;
+      renderStats(); renderRecentBookings(); renderInvoices();
     });
   });
 }
@@ -387,27 +425,49 @@ document.getElementById('filterStatus').addEventListener('change', e=> renderBoo
 
 function renderMessages(){
   document.getElementById('messagesList').innerHTML = messages.map(m=>`
-    <div class="msg-item"><div class="top">${m.name} — ${m.subject} <span>${m.time}</span></div><p>${m.body}<br><span style="color:var(--gray-dim); font-size:0.72rem;">${m.email}</span></p></div>`).join('');
+    <div class="msg-item"><div class="top">${m.name} — ${m.subject||'(no subject)'} <span>${timeAgo(m.created_at)}</span></div><p>${m.message||''}<br><span style="color:var(--gray-dim); font-size:0.72rem;">${m.email||''} ${m.phone?(' · '+m.phone):''}</span></p></div>`).join('')
+    || `<p style="color:var(--gray-dim); font-size:0.85rem;">No messages yet.</p>`;
 }
 
 function renderTestimonials(){
-  document.getElementById('testiList').innerHTML = testimonials.map((t,i)=>`
+  document.getElementById('testiList').innerHTML = testimonials.map(t=>`
     <div class="testi-row"><div>
-      <div style="color:var(--gold); font-size:0.8rem; letter-spacing:1px;">${'★'.repeat(t.stars)}</div>
-      <p style="margin-top:4px; font-size:0.85rem; color:var(--gray);">"${t.text}"</p>
-      <div style="font-size:0.72rem; color:var(--gray-dim); margin-top:4px;">${t.name}, ${t.loc}</div>
-    </div><button class="del" data-i="${i}">Remove</button></div>`).join('');
+      <div style="color:var(--gold); font-size:0.8rem; letter-spacing:1px;">${'★'.repeat(t.stars||5)}</div>
+      <p style="margin-top:4px; font-size:0.85rem; color:var(--gray);">"${t.quote}"</p>
+      <div style="font-size:0.72rem; color:var(--gray-dim); margin-top:4px;">${t.name}, ${t.location||''}</div>
+    </div><button class="del" data-id="${t.id}">Remove</button></div>`).join('')
+    || `<p style="color:var(--gray-dim); font-size:0.85rem;">No testimonials yet.</p>`;
   document.querySelectorAll('.testi-row .del').forEach(btn=>{
-    btn.addEventListener('click', e=>{ testimonials.splice(+e.target.dataset.i,1); renderTestimonials(); });
+    btn.addEventListener('click', async e=>{
+      const id = e.target.dataset.id;
+      const { error } = await sb.from('testimonials').delete().eq('id', id);
+      if(error){ alert('Failed to delete: ' + error.message); return; }
+      testimonials = testimonials.filter(t=>t.id!==id);
+      renderTestimonials();
+    });
   });
 }
 
+document.getElementById('addTestiBtn').addEventListener('click', async ()=>{
+  const name = document.getElementById('newTName').value.trim();
+  const location = document.getElementById('newTLoc').value.trim();
+  const quote = document.getElementById('newTText').value.trim();
+  if(!name || !quote){ alert('Please fill in at least name and review text.'); return; }
+  const { data, error } = await sb.from('testimonials').insert({ name, location, quote, stars:5 }).select();
+  if(error){ alert('Failed to add: ' + error.message); return; }
+  testimonials.unshift(data[0]);
+  renderTestimonials();
+  document.getElementById('newTName').value='';
+  document.getElementById('newTLoc').value='';
+  document.getElementById('newTText').value='';
+});
+
 function renderCalendar(){
-  const now=new Date(2026,6,1);
+  const now=new Date();
   document.getElementById('calMonthLabel').textContent = now.toLocaleDateString('en-IN',{month:'long', year:'numeric'});
   const firstDay=new Date(now.getFullYear(),now.getMonth(),1).getDay();
   const daysInMonth=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
-  const eventDates = new Set(bookings.map(b=>b.date));
+  const eventDates = new Set(bookings.map(b=>b.event_date));
   const grid=document.getElementById('calendarGrid'); grid.innerHTML='';
   for(let i=0;i<firstDay;i++){ grid.innerHTML+='<div class="cal-cell" style="border:none;"></div>'; }
   for(let d=1; d<=daysInMonth; d++){
@@ -419,9 +479,10 @@ function renderCalendar(){
 
 function renderInvoices(){
   document.getElementById('invoiceBody').innerHTML = bookings.slice(0,8).map((b,i)=>`
-    <tr><td>INV-${1000+i}</td><td>${b.client}</td><td>₹${b.advance.toLocaleString('en-IN')}</td>
+    <tr><td>INV-${1000+i}</td><td>${b.name}</td><td>₹${Number(b.advance||0).toLocaleString('en-IN')}</td>
     <td>${statusBadge(b.status==='Cancelled'?'Cancelled':(b.status==='Pending'?'Pending':'Confirmed'))}</td>
-    <td><button class="btn-sm" onclick="alert('Wire this to a real PDF generator (e.g. the pdf skill / a server route) to download an actual invoice.')">Download</button></td></tr>`).join('');
+    <td><button class="btn-sm" onclick="alert('Wire this to a real PDF generator (e.g. the pdf skill / a server route) to download an actual invoice.')">Download</button></td></tr>`).join('')
+    || `<tr><td colspan="5" style="color:var(--gray-dim);">No bookings yet.</td></tr>`;
 }
 
 /* ---------- portfolio upload preview ---------- */
@@ -441,8 +502,8 @@ document.getElementById('portfolioUpload').addEventListener('change', function(e
 /* ---------- export CSV ---------- */
 document.getElementById('exportExcel').addEventListener('click', ()=>{
   const rows=[['Booking ID','Client','Service','Date','Venue','Budget','Advance','Status']];
-  bookings.forEach(b=> rows.push([b.id,b.client,b.service,b.date,b.venue,b.budget,b.advance,b.status]));
-  const csv = rows.map(r=> r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  bookings.forEach(b=> rows.push([b.booking_id,b.name,b.service,b.event_date,b.venue,b.budget,b.advance,b.status]));
+  const csv = rows.map(r=> r.map(v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob = new Blob([csv], {type:'text/csv'});
   const url = URL.createObjectURL(blob);
   const a=document.createElement('a'); a.href=url; a.download='vmc-bookings.csv'; a.click();
