@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vision Mixing Centre | Wedding Photography & Cinematic Films, Srinagar</title>
+<meta name="description" content="Vision Mixing Centre — premium wedding photography and cinematic films based in Nowshera, Srinagar, Jammu & Kashmir.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Montserrat:wght@500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0D0D0D;
+  --bg-panel:#151210;
+  --wine:#4a1420;
+  --wine-soft:rgba(110,20,35,0.35);
+  --gold:#D4AF37;
+  --gold-soft:#e8c766;
+  --white:#FFFFFF;
+  --gray:#999999;
+  --gray-dim:#6b6b6b;
+  --line: rgba(212,175,55,0.18);
+  --radius: 2px;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--white);
+  font-family:'Poppins', sans-serif;
+  font-weight:300;
+  line-height:1.7;
+  overflow-x:hidden;
+}
+h1,h2,h3,h4{ font-family:'Playfair Display', serif; font-weight:600; letter-spacing:0.3px; }
+.eyebrow{
+  font-family:'Montserrat', sans-serif;
+  font-weight:600;
+  font-size:0.72rem;
+  letter-spacing:4px;
+  text-transform:uppercase;
+  color:var(--gold);
+  display:inline-flex;
+  align-items:center;
+  gap:14px;
+}
+.eyebrow::before{content:''; width:28px; height:1px; background:var(--gold);}
+a{color:inherit; text-decoration:none;}
+img{max-width:100%; display:block;}
+.container{max-width:1240px; margin:0 auto; padding:0 28px;}
+section{position:relative; padding:120px 0;}
+@media(max-width:768px){ section{padding:80px 0;} }
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important; transition:none !important;}
+}
+
+/* ---------- chinar leaf motif (signature element) ---------- */
+.chinar-divider{
+  display:flex; align-items:center; justify-content:center;
+  gap:18px; margin:0 auto 64px; opacity:0.85;
+}
+.chinar-divider .rule{ width:80px; height:1px; background:linear-gradient(90deg, transparent, var(--gold), transparent);}
+.chinar-leaf{ width:26px; height:26px; fill:none; stroke:var(--gold); stroke-width:1.1; }
+
+/* ---------- nav ---------- */
+header{
+  position:fixed; top:0; left:0; width:100%; z-index:1000;
+  backdrop-filter: blur(14px);
+  background:rgba(13,13,13,0.55);
+  border-bottom:1px solid var(--line);
+  transition: background .3s ease, padding .3s ease;
+}
+.nav-wrap{
+  max-width:1240px; margin:0 auto; padding:20px 28px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.brand{
+  font-family:'Playfair Display', serif; font-size:1.35rem; font-weight:700;
+  letter-spacing:0.5px; display:flex; flex-direction:column; line-height:1.1;
+}
+.brand span{ font-family:'Montserrat',sans-serif; font-size:0.6rem; letter-spacing:3px; color:var(--gold); font-weight:600; margin-top:4px;}
+nav ul{ list-style:none; display:flex; gap:30px; align-items:center;}
+nav ul li a{
+  font-family:'Montserrat',sans-serif; font-size:0.72rem; letter-spacing:1.6px; text-transform:uppercase;
+  color:var(--gray); transition:color .25s;
+  position:relative;
+}
+nav ul li a:hover, nav ul li a:focus-visible{ color:var(--gold); }
+.nav-cta{
+  border:1px solid var(--gold); padding:10px 22px; color:var(--gold) !important;
+}
+.nav-cta:hover{ background:var(--gold); color:var(--bg) !important; }
+.burger{ display:none; flex-direction:column; gap:5px; cursor:pointer; background:none; border:none;}
+.burger span{ width:26px; height:2px; background:var(--gold); }
+@media(max-width:980px){
+  nav ul{
+    position:fixed; top:0; right:-100%; height:100vh; width:280px;
+    background:#0f0d0c; flex-direction:column; justify-content:center;
+    align-items:flex-start; padding:40px; gap:26px; transition:right .35s ease;
+    border-left:1px solid var(--line);
+  }
+  nav ul.open{ right:0; }
+  .burger{ display:flex; }
+}
+
+/* ---------- hero ---------- */
+.hero{
+  min-height:100vh; display:flex; align-items:center; position:relative;
+  padding-top:120px;
+  background:
+    radial-gradient(ellipse at 30% 20%, var(--wine-soft), transparent 55%),
+    radial-gradient(ellipse at 80% 80%, rgba(212,175,55,0.10), transparent 50%),
+    linear-gradient(180deg, #0a0908 0%, #0D0D0D 60%, #0a0908 100%);
+  overflow:hidden;
+}
+.hero::after{
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, transparent 1px, transparent 3px);
+}
+#leafCanvas{ position:absolute; inset:0; z-index:1; opacity:0.5;}
+.hero-content{ position:relative; z-index:2; max-width:780px;}
+.hero-content h1{
+  font-size:clamp(2.6rem, 6vw, 4.6rem); line-height:1.08; margin:22px 0 20px;
+  font-style:italic;
+}
+.hero-content h1 em{ color:var(--gold); font-style:italic; }
+.hero-content p.sub{ color:var(--gray); font-size:1.05rem; max-width:520px; margin-bottom:40px; font-weight:300;}
+.btn-row{ display:flex; gap:20px; flex-wrap:wrap; }
+.btn{
+  font-family:'Montserrat',sans-serif; font-size:0.75rem; letter-spacing:2px; text-transform:uppercase;
+  padding:16px 34px; border-radius:1px; cursor:pointer; transition:.3s; display:inline-block; border:1px solid transparent;
+}
+.btn-gold{ background:var(--gold); color:#0D0D0D; font-weight:600;}
+.btn-gold:hover{ background:var(--gold-soft); transform:translateY(-2px); }
+.btn-outline{ border-color:var(--gold); color:var(--gold);}
+.btn-outline:hover{ background:rgba(212,175,55,0.1); transform:translateY(-2px); }
+.hero-tags{
+  position:absolute; bottom:44px; left:0; width:100%; z-index:2;
+  display:flex; gap:0; overflow:hidden; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+}
+.hero-tags .track{ display:flex; gap:50px; white-space:nowrap; animation: scroll-left 32s linear infinite; padding:14px 0;}
+@keyframes scroll-left{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+.hero-tags span{ font-family:'Montserrat',sans-serif; font-size:0.72rem; letter-spacing:2px; text-transform:uppercase; color:var(--gray-dim);}
+.hero-tags span::after{content:'✦'; color:var(--gold); margin-left:50px;}
+
+/* ---------- glass card base ---------- */
+.glass{
+  background:linear-gradient(155deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015));
+  border:1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(10px);
+}
+
+/* ---------- section headers ---------- */
+.sec-head{ text-align:center; max-width:640px; margin:0 auto 64px;}
+.sec-head h2{ font-size:clamp(1.9rem,3.4vw,2.8rem); margin-top:16px;}
+.sec-head p{ color:var(--gray); margin-top:16px; font-size:0.98rem;}
+
+/* ---------- about / counters ---------- */
+.about-grid{ display:grid; grid-template-columns:1fr 1fr; gap:70px; align-items:center;}
+.about-visual{ position:relative; aspect-ratio:4/5; border:1px solid var(--line); overflow:hidden;}
+.about-visual .frame{
+  position:absolute; inset:14px; border:1px solid var(--gold); opacity:0.4;
+}
+.about-visual .fill{
+  position:absolute; inset:0;
+  background: linear-gradient(160deg, #201a15, #0d0d0d 60%, #201014);
+  display:flex; align-items:center; justify-content:center;
+}
+.about-visual .chinar-leaf{ width:110px; height:110px; opacity:0.5;}
+.about-copy p{ color:var(--gray); margin-bottom:18px;}
+.counters{ display:grid; grid-template-columns:repeat(4,1fr); gap:24px; margin-top:48px;}
+.counter{ text-align:center; border-left:1px solid var(--line); padding-left:18px;}
+.counter h3{ font-size:2.1rem; color:var(--gold);}
+.counter span{ font-family:'Montserrat',sans-serif; font-size:0.68rem; letter-spacing:1.4px; text-transform:uppercase; color:var(--gray);}
+@media(max-width:900px){ .about-grid{ grid-template-columns:1fr;} .counters{grid-template-columns:repeat(2,1fr); gap:30px;} }
+
+/* ---------- services ---------- */
+.services-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:26px;}
+.svc-card{ padding:38px 30px; transition:.35s; position:relative;}
+.svc-card:hover{ transform:translateY(-6px); border-color:var(--gold);}
+.svc-icon{ width:42px; height:42px; stroke:var(--gold); fill:none; stroke-width:1.2; margin-bottom:22px;}
+.svc-card h3{ font-size:1.2rem; margin-bottom:10px;}
+.svc-card p.desc{ color:var(--gray); font-size:0.88rem; margin-bottom:18px;}
+.svc-meta{ display:flex; justify-content:space-between; font-family:'Montserrat',sans-serif; font-size:0.72rem; letter-spacing:1px; color:var(--gray-dim); border-top:1px solid var(--line); padding-top:16px; margin-bottom:18px;}
+.svc-meta b{ color:var(--gold); font-weight:600;}
+.svc-card .btn{ width:100%; text-align:center; padding:12px; font-size:0.68rem;}
+
+/* ---------- portfolio ---------- */
+.filter-row{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:50px;}
+.filter-btn{
+  font-family:'Montserrat',sans-serif; font-size:0.68rem; letter-spacing:1.6px; text-transform:uppercase;
+  padding:10px 20px; border:1px solid var(--line); color:var(--gray); background:none; cursor:pointer; transition:.25s;
+}
+.filter-btn.active, .filter-btn:hover{ border-color:var(--gold); color:var(--gold);}
+.grid-gallery{ display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:18px;}
+.grid-item{
+  aspect-ratio:4/5; position:relative; overflow:hidden; cursor:pointer; border:1px solid var(--line);
+  background:linear-gradient(150deg,#1a1512,#0d0d0d 65%,#2a1218);
+  display:flex; align-items:center; justify-content:center; transition:.4s;
+}
+.grid-item:hover{ transform:scale(1.02); border-color:var(--gold);}
+.grid-item .cam{ width:46px; height:46px; stroke:var(--gray-dim); fill:none; stroke-width:1; transition:.3s;}
+.grid-item:hover .cam{ stroke:var(--gold);}
+.grid-item .tag{
+  position:absolute; bottom:14px; left:14px; font-family:'Montserrat',sans-serif; font-size:0.65rem; letter-spacing:1.5px;
+  text-transform:uppercase; color:var(--gray);
+}
+.grid-item .wm{ position:absolute; top:10px; right:12px; font-size:0.6rem; color:var(--gray-dim); font-family:'Montserrat',sans-serif; letter-spacing:1px;}
+/* lightbox */
+.lightbox{ position:fixed; inset:0; background:rgba(5,5,5,0.94); z-index:2000; display:none; align-items:center; justify-content:center; flex-direction:column; gap:20px;}
+.lightbox.open{ display:flex;}
+.lightbox .lb-box{ width:min(560px,86vw); aspect-ratio:4/5; background:linear-gradient(150deg,#1a1512,#0d0d0d 60%,#2a1218); border:1px solid var(--gold); display:flex; align-items:center; justify-content:center;}
+.lightbox .lb-box svg{ width:70px; height:70px; stroke:var(--gold); fill:none; stroke-width:1;}
+.lightbox p{ color:var(--gray); font-family:'Montserrat',sans-serif; letter-spacing:1px; font-size:0.75rem;}
+.lb-close{ position:absolute; top:34px; right:44px; color:var(--gold); font-size:1.6rem; cursor:pointer; background:none; border:none;}
+
+/* ---------- booking ---------- */
+.booking-wrap{ display:grid; grid-template-columns:0.9fr 1.3fr; gap:60px;}
+.booking-side h2{ font-size:2.2rem; margin-bottom:20px;}
+.booking-side p{ color:var(--gray); margin-bottom:26px;}
+.booking-side ul{ list-style:none;}
+.booking-side ul li{ display:flex; gap:12px; align-items:flex-start; margin-bottom:16px; color:var(--gray); font-size:0.9rem;}
+.booking-side ul li svg{ width:18px; height:18px; stroke:var(--gold); fill:none; flex-shrink:0; margin-top:2px;}
+form.booking{ padding:40px; display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+.field{ display:flex; flex-direction:column; gap:8px;}
+.field.full{ grid-column:1/-1;}
+label{ font-family:'Montserrat',sans-serif; font-size:0.68rem; letter-spacing:1.4px; text-transform:uppercase; color:var(--gray);}
+input, select, textarea{
+  background:rgba(255,255,255,0.03); border:1px solid var(--line); color:var(--white);
+  padding:13px 14px; font-family:'Poppins',sans-serif; font-size:0.9rem; font-weight:300;
+}
+input:focus, select:focus, textarea:focus{ outline:none; border-color:var(--gold);}
+textarea{ resize:vertical; min-height:90px;}
+input[type=file]{ padding:9px 10px; font-size:0.8rem;}
+.field select{ appearance:none;}
+.booking .btn{ grid-column:1/-1; justify-self:start; margin-top:6px;}
+.booking-confirm{ grid-column:1/-1; display:none; padding:22px; border:1px solid var(--gold); background:rgba(212,175,55,0.06); font-size:0.9rem; color:var(--gold);}
+.booking-confirm.show{ display:block;}
+@media(max-width:900px){ .booking-wrap{grid-template-columns:1fr;} form.booking{grid-template-columns:1fr; padding:28px;} }
+
+/* ---------- pricing ---------- */
+.pricing-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:22px;}
+.price-card{ padding:44px 30px; text-align:center; position:relative;}
+.price-card.feat{ border-color:var(--gold); transform:scale(1.03);}
+.price-card .badge{ position:absolute; top:-13px; left:50%; transform:translateX(-50%); background:var(--gold); color:#0d0d0d; font-family:'Montserrat',sans-serif; font-size:0.62rem; letter-spacing:1.4px; padding:5px 14px; text-transform:uppercase; font-weight:700;}
+.price-card h3{ font-size:1.3rem; letter-spacing:1px;}
+.price-card .amt{ font-size:2.4rem; color:var(--gold); margin:18px 0 6px; font-family:'Playfair Display',serif;}
+.price-card .amt span{ font-size:0.9rem; color:var(--gray); font-family:'Poppins',sans-serif;}
+.price-card ul{ list-style:none; text-align:left; margin:26px 0; border-top:1px solid var(--line); padding-top:22px;}
+.price-card ul li{ font-size:0.85rem; color:var(--gray); margin-bottom:12px; display:flex; gap:10px;}
+.price-card ul li::before{ content:'✦'; color:var(--gold); font-size:0.7rem;}
+
+/* ---------- testimonials ---------- */
+.testi-wrap{ max-width:760px; margin:0 auto; text-align:center; position:relative;}
+.testi-slide{ display:none;}
+.testi-slide.active{ display:block;}
+.testi-stars{ color:var(--gold); font-size:1rem; letter-spacing:3px; margin-bottom:20px;}
+.testi-quote{ font-family:'Playfair Display',serif; font-style:italic; font-size:1.3rem; line-height:1.6; margin-bottom:26px;}
+.testi-person{ font-family:'Montserrat',sans-serif; font-size:0.75rem; letter-spacing:1.4px; text-transform:uppercase; color:var(--gold);}
+.testi-loc{ color:var(--gray-dim); font-size:0.75rem; margin-top:4px;}
+.testi-nav{ display:flex; justify-content:center; gap:16px; margin-top:36px;}
+.testi-nav button{ width:38px; height:38px; border:1px solid var(--line); background:none; color:var(--gold); cursor:pointer; transition:.25s;}
+.testi-nav button:hover{ border-color:var(--gold);}
+
+/* ---------- contact ---------- */
+.contact-grid{ display:grid; grid-template-columns:1fr 1fr; gap:60px;}
+.contact-person{ padding:36px; display:flex; gap:22px; align-items:flex-start; margin-bottom:26px;}
+.avatar{ width:74px; height:74px; border-radius:50%; border:1px solid var(--gold); display:flex; align-items:center; justify-content:center; flex-shrink:0; background:linear-gradient(150deg,#201a15,#0d0d0d);}
+.avatar svg{ width:34px; height:34px; stroke:var(--gold); fill:none; stroke-width:1.1;}
+.contact-person h4{ font-size:1.1rem;}
+.contact-person .role{ color:var(--gold); font-family:'Montserrat',sans-serif; font-size:0.68rem; letter-spacing:1.4px; text-transform:uppercase; margin:4px 0 14px;}
+.contact-actions{ display:flex; gap:10px; flex-wrap:wrap;}
+.contact-actions a{ border:1px solid var(--line); font-family:'Montserrat',sans-serif; font-size:0.66rem; letter-spacing:1.2px; text-transform:uppercase; padding:9px 14px; color:var(--gray); transition:.25s;}
+.contact-actions a:hover{ border-color:var(--gold); color:var(--gold);}
+.map-box{ aspect-ratio:16/10; border:1px solid var(--line); overflow:hidden;}
+.map-box iframe{ width:100%; height:100%; border:0; filter:grayscale(1) invert(0.92) contrast(0.9);}
+form.contact-form{ padding:36px; display:flex; flex-direction:column; gap:18px;}
+
+/* ---------- footer ---------- */
+footer{ border-top:1px solid var(--line); padding:70px 0 30px;}
+.foot-grid{ display:grid; grid-template-columns:1.4fr 1fr 1fr 1.2fr; gap:40px; margin-bottom:50px;}
+.foot-grid h5{ font-family:'Montserrat',sans-serif; font-size:0.7rem; letter-spacing:1.6px; text-transform:uppercase; color:var(--gold); margin-bottom:18px;}
+.foot-grid ul{ list-style:none;}
+.foot-grid ul li{ margin-bottom:10px;}
+.foot-grid ul li a{ color:var(--gray); font-size:0.88rem; transition:.25s;}
+.foot-grid ul li a:hover{ color:var(--gold);}
+.foot-social{ display:flex; gap:14px; margin-top:16px;}
+.foot-social a{ width:36px; height:36px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center;}
+.foot-social a:hover{ border-color:var(--gold);}
+.foot-social svg{ width:16px; height:16px; stroke:var(--gray); fill:none;}
+.foot-social a:hover svg{ stroke:var(--gold);}
+.foot-bottom{ text-align:center; padding-top:30px; border-top:1px solid var(--line); color:var(--gray-dim); font-size:0.8rem;}
+@media(max-width:900px){ .foot-grid{ grid-template-columns:1fr 1fr; } .contact-grid{grid-template-columns:1fr;} }
+
+/* ---------- whatsapp widget ---------- */
+.wa-widget{
+  position:fixed; bottom:26px; right:26px; z-index:900; width:56px; height:56px; border-radius:50%;
+  background:#1f8f57; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 6px 20px rgba(0,0,0,0.4);
+}
+.wa-widget svg{ width:26px; height:26px; fill:#fff;}
+
+/* scroll fade-in */
+.reveal{ opacity:0; transform:translateY(24px); transition:opacity .8s ease, transform .8s ease;}
+.reveal.in{ opacity:1; transform:translateY(0);}
+
+/* notice banner */
+.dev-notice{
+  background:linear-gradient(90deg, rgba(212,175,55,0.08), rgba(74,20,32,0.15));
+  border-bottom:1px solid var(--line); text-align:center; padding:10px 20px; font-size:0.78rem; color:var(--gray);
+  font-family:'Montserrat',sans-serif; letter-spacing:0.4px;
+}
+.dev-notice b{ color:var(--gold);}
+</style>
+</head>
+<body>
+
+<header id="siteHeader">
+  <div class="nav-wrap">
+    <div class="brand">VISION MIXING CENTRE<span>SRINAGAR · KASHMIR</span></div>
+    <button class="burger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    <nav>
+      <ul id="navList">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#portfolio">Portfolio</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#testimonials">Testimonials</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="#booking" class="nav-cta">Book Now</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero" id="home">
+  <canvas id="leafCanvas"></canvas>
+  <div class="container">
+    <div class="hero-content">
+      <span class="eyebrow">Wedding Photography &amp; Cinematic Films</span>
+      <h1>Capturing memories<br>that outlive <em>the moment</em></h1>
+      <p class="sub">Vision Mixing Centre is a Srinagar-based studio crafting timeless wedding photography and cinematic films across Kashmir — from the Dal Lake shikara to the chinar-lined avenues of Nowshera.</p>
+      <div class="btn-row">
+        <a href="#booking" class="btn btn-gold">Book Now</a>
+        <a href="#portfolio" class="btn btn-outline">View Portfolio</a>
+      </div>
+    </div>
+  </div>
+  <div class="hero-tags">
+    <div class="track">
+      <span>Wedding Photography</span><span>Cinematic Films</span><span>Bride Portraits</span><span>Groom Portraits</span><span>Pre-Wedding</span><span>Drone Photography</span><span>Wedding Highlights</span>
+      <span>Wedding Photography</span><span>Cinematic Films</span><span>Bride Portraits</span><span>Groom Portraits</span><span>Pre-Wedding</span><span>Drone Photography</span><span>Wedding Highlights</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ABOUT ===================== -->
+<section id="about">
+  <div class="container reveal">
+    <div class="chinar-divider"><div class="rule"></div><svg class="chinar-leaf" viewBox="0 0 100 100"><path d="M50 5 C55 20 70 25 85 30 C72 35 68 45 70 58 C58 50 52 52 50 62 C48 52 42 50 30 58 C32 45 28 35 15 30 C30 25 45 20 50 5 Z M50 62 L50 95"/></svg><div class="rule"></div></div>
+    <div class="about-grid">
+      <div class="about-visual">
+        <div class="fill"><svg class="chinar-leaf" viewBox="0 0 100 100" style="stroke:var(--gold)"><path d="M50 5 C55 20 70 25 85 30 C72 35 68 45 70 58 C58 50 52 52 50 62 C48 52 42 50 30 58 C32 45 28 35 15 30 C30 25 45 20 50 5 Z M50 62 L50 95"/></svg></div>
+        <div class="frame"></div>
+      </div>
+      <div class="about-copy">
+        <span class="eyebrow">About the Studio</span>
+        <h2 style="margin:18px 0 22px; font-size:2.1rem;">Fifteen years of Kashmiri weddings, told in light</h2>
+        <p>Vision Mixing Centre is a full-service wedding photography and cinematic film studio founded in Srinagar. Our team works with high-end cinema cameras, drones and lighting to document weddings, engagements and portraits across the valley.</p>
+        <p>Led by Founder &amp; Creative Director Muneer Mattoo, we've built our reputation one wedding at a time — combining traditional Kashmiri ceremony coverage with a modern, cinematic visual language.</p>
+        <div class="counters">
+          <div class="counter"><h3 data-count="500">0</h3><span>Wedding Projects</span></div>
+          <div class="counter"><h3 data-count="1000">0</h3><span>Happy Clients</span></div>
+          <div class="counter"><h3 data-count="15">0</h3><span>Years Experience</span></div>
+          <div class="counter"><h3 data-count="5" data-star="true">0</h3><span>Customer Rating</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SERVICES ===================== -->
+<section id="services" style="background:var(--bg-panel);">
+  <div class="container reveal">
+    <div class="sec-head">
+      <span class="eyebrow">What We Do</span>
+      <h2>Services built around your day</h2>
+      <p>Every package can be tailored — combine, extend or simplify any of the below when you book.</p>
+    </div>
+    <div class="services-grid" id="servicesGrid"></div>
+  </div>
+</section>
+
+<!-- ===================== PORTFOLIO ===================== -->
+<section id="portfolio">
+  <div class="container reveal">
+    <div class="sec-head">
+      <span class="eyebrow">Selected Work</span>
+      <h2>Portfolio</h2>
+      <p>Placeholder frames below — swap these for your real photography when you connect a media library.</p>
+    </div>
+    <div class="filter-row" id="filterRow"></div>
+    <div class="grid-gallery" id="portfolioGrid"></div>
+  </div>
+</section>
+
+<div class="lightbox" id="lightbox">
+  <button class="lb-close" id="lbClose">&times;</button>
+  <div class="lb-box"><svg viewBox="0 0 24 24"><path d="M4 7h3l2-3h6l2 3h3v13H4z"/><circle cx="12" cy="13" r="3.5"/></svg></div>
+  <p id="lbTag">WEDDING · FULL RESOLUTION IMAGE GOES HERE</p>
+</div>
+
+<!-- ===================== BOOKING ===================== -->
+<section id="booking" style="background:var(--bg-panel);">
+  <div class="container reveal">
+    <div class="booking-wrap">
+      <div class="booking-side">
+        <span class="eyebrow">Reserve Your Date</span>
+        <h2>Let's start planning</h2>
+        <p>Fill in your event details and we'll confirm availability within 24 hours. Advance payment secures your date.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Booking ID generated instantly on submission</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Reference recap sent right here on the page</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Our team follows up by phone / WhatsApp to confirm</li>
+        </ul>
+      </div>
+      <form class="booking glass" id="bookingForm">
+        <div class="field"><label>Full Name</label><input type="text" required name="name"></div>
+        <div class="field"><label>Phone Number</label><input type="tel" required name="phone"></div>
+        <div class="field"><label>WhatsApp Number</label><input type="tel" name="whatsapp"></div>
+        <div class="field"><label>Email</label><input type="email" required name="email"></div>
+        <div class="field full"><label>Address</label><input type="text" name="address"></div>
+        <div class="field"><label>Event Date</label><input type="date" required name="date"></div>
+        <div class="field"><label>Event Time</label><input type="time" name="time"></div>
+        <div class="field full"><label>Venue</label><input type="text" name="venue"></div>
+        <div class="field"><label>Select Service</label>
+          <select name="service" id="serviceSelect" required>
+            <option value="">Choose a service</option>
+            <option>Wedding Photography</option>
+            <option>Wedding Cinematic Film</option>
+            <option>Engagement Shoot</option>
+            <option>Pre-Wedding Shoot</option>
+            <option>Traditional Photography</option>
+            <option>Drone Shoot</option>
+            <option>Tourism Photography</option>
+            <option>Portrait Photography</option>
+            <option>Birthday Events</option>
+            <option>Corporate Events</option>
+            <option>Music Video Shoot</option>
+            <option>Album Designing</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Budget (₹)</label>
+          <input type="number" name="budget" id="budgetInput" min="0" placeholder="e.g. 75000">
+          <small id="budgetHelper" style="color:var(--gray-dim); font-size:0.72rem; margin-top:2px;">Select a service to see its starting rate</small>
+        </div>
+        <div class="field full"><label>Special Requirements</label><textarea name="notes"></textarea></div>
+        <div class="field full"><label>Upload Inspiration Images</label><input type="file" name="inspiration" multiple accept="image/*"></div>
+        <div class="field"><label>Coupon Code</label><input type="text" name="coupon" placeholder="Optional"></div>
+        <div class="field"><label>Advance Amount (₹)</label><input type="number" name="advance" min="0" placeholder="e.g. 10000"></div>
+        <button type="submit" class="btn btn-gold">Submit Booking Request</button>
+        <div class="booking-confirm" id="bookingConfirm"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PRICING ===================== -->
+<section id="pricing">
+  <div class="container reveal">
+    <div class="sec-head">
+      <span class="eyebrow">Wedding Packages</span>
+      <h2>Pricing</h2>
+      <p>Starting prices in INR — final quote depends on venue, duration and add-ons.</p>
+    </div>
+    <div class="pricing-grid" id="pricingGrid"></div>
+  </div>
+</section>
+
+<!-- ===================== TESTIMONIALS ===================== -->
+<section id="testimonials" style="background:var(--bg-panel);">
+  <div class="container reveal">
+    <div class="sec-head">
+      <span class="eyebrow">Kind Words</span>
+      <h2>What couples say</h2>
+    </div>
+    <div class="testi-wrap" id="testiWrap"></div>
+  </div>
+</section>
+
+<!-- ===================== CONTACT ===================== -->
+<section id="contact">
+  <div class="container reveal">
+    <div class="sec-head">
+      <span class="eyebrow">Get In Touch</span>
+      <h2>Contact Vision Mixing Centre</h2>
+    </div>
+    <div class="contact-grid">
+      <div>
+        <div class="contact-person glass">
+          <div class="avatar"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></div>
+          <div>
+            <h4>Muneer Mattoo</h4>
+            <div class="role">Founder &amp; Creative Director</div>
+            <div class="contact-actions">
+              <a href="tel:+911234567890">Call</a>
+              <a href="https://wa.me/911234567890" target="_blank" rel="noopener">WhatsApp</a>
+              <a href="mailto:info@visionmixingcentre.com">Email</a>
+              <a href="#" target="_blank" rel="noopener">Facebook</a>
+              <a href="#" target="_blank" rel="noopener">Instagram</a>
+              <a href="#" target="_blank" rel="noopener">YouTube</a>
+            </div>
+          </div>
+        </div>
+        <form class="contact-form glass" id="contactForm">
+          <div class="field"><label>Name</label><input type="text" required name="cname"></div>
+          <div class="field"><label>Phone</label><input type="tel" name="cphone"></div>
+          <div class="field"><label>Email</label><input type="email" required name="cemail"></div>
+          <div class="field"><label>Subject</label><input type="text" name="csubject"></div>
+          <div class="field"><label>Message</label><textarea name="cmessage" required></textarea></div>
+          <button type="submit" class="btn btn-gold" style="align-self:flex-start;">Send Message</button>
+          <div class="booking-confirm" id="contactConfirm"></div>
+        </form>
+      </div>
+      <div>
+        <div class="map-box">
+          <iframe loading="lazy" src="https://www.google.com/maps?q=Nowshera,Srinagar,Jammu%20and%20Kashmir&output=embed"></iframe>
+        </div>
+        <p style="color:var(--gray); margin-top:18px; font-size:0.9rem;">Vision Mixing Centre, Nowshera, Srinagar, Jammu &amp; Kashmir, India</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div>
+        <div class="brand" style="margin-bottom:14px;">VISION MIXING CENTRE</div>
+        <p style="color:var(--gray); font-size:0.88rem; max-width:280px;">Wedding photography &amp; cinematic films crafted in Srinagar, Kashmir.</p>
+        <div class="foot-social">
+          <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M15 8h3V4h-3a5 5 0 0 0-5 5v3H8v4h2v8h4v-8h3l1-4h-4V9a1 1 0 0 1 1-1z"/></svg></a>
+          <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
+          <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="3"/><path d="M10 9.5l5 2.5-5 2.5z" fill="var(--gray)"/></svg></a>
+          <a href="#" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-7.8 13.4L3 21l4.7-1.2A9 9 0 1 0 12 3z"/></svg></a>
+        </div>
+      </div>
+      <div><h5>Quick Links</h5><ul><li><a href="#about">About Us</a></li><li><a href="#services">Services</a></li><li><a href="#portfolio">Portfolio</a></li><li><a href="#pricing">Pricing</a></li></ul></div>
+      <div><h5>Studio</h5><ul><li><a href="#booking">Booking</a></li><li><a href="#testimonials">Testimonials</a></li><li><a href="#contact">Contact</a></li><li><a href="#">Blog</a></li></ul></div>
+      <div><h5>Newsletter</h5><p style="color:var(--gray); font-size:0.85rem; margin-bottom:14px;">Photography tips &amp; latest shoots, occasionally.</p>
+        <div style="display:flex; border:1px solid var(--line);">
+          <input type="email" placeholder="Your email" style="border:none; flex:1;">
+          <button class="btn btn-gold" style="padding:12px 18px; font-size:0.65rem;">Join</button>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">© 2026 Vision Mixing Centre. All Rights Reserved. · Nowshera, Srinagar, Jammu &amp; Kashmir</div>
+  </div>
+</footer>
+
+<a class="wa-widget" href="https://wa.me/911234567890" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+  <svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.7 1.5 5.2L2 22l4.9-1.4A10 10 0 1 0 12 2zm5.6 14.1c-.2.6-1.3 1.2-1.8 1.3-.5.1-1 .1-1.7-.1-.4-.1-1-.3-1.6-.6-2.8-1.2-4.6-4-4.8-4.2-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2 1-2.3.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5.2.6.7 1.9.8 2 .1.2.1.3 0 .5-.1.2-.2.3-.3.5-.2.2-.3.3-.1.6.2.3.9 1.4 1.9 2.3 1.3 1.1 2.3 1.5 2.7 1.6.3.1.5.1.7-.1.2-.2.7-.8.9-1.1.2-.3.4-.2.7-.1.3.1 1.8.9 2.1 1 .3.1.5.2.6.3.1.2.1.7-.1 1.3z"/></svg>
+</a>
+
+<script>
+/* ---------- data ---------- */
+const services = [
+ ["Photography / Videography Shoot","Combined photo and video coverage of your event, blending candid stills with cinematic footage for a complete keepsake.","₹35,000","8–10 hrs"],
+ ["Wedding Cinematic Shoot","Story-driven highlight film with drone, gimbal and audio design.","₹45,000","Full day"],
+ ["Engagement Shoot","An intimate session to mark the beginning of your story.","₹25,000","2–3 hrs"],
+ ["Pre-Wedding Shoot","Location shoot across Kashmir's most scenic backdrops.","₹23,000","Half day"],
+ ["Traditional Photography","Classic, formal coverage alongside the candid team.","₹20,000","Full day"],
+ ["Drone Shoot","Aerial coverage of venue, procession and landscape.","₹12,000","Add-on"],
+ ["Tourist Photo Shoot","Travel and location photography across the valley.","₹27,000","Per day"],
+ ["Portrait Photography","Studio or on-location individual and family portraits.","₹12,000","1–2 hrs"],
+ ["Birthday Events","Candid and formal coverage of birthday celebrations.","₹10,000","3–4 hrs"],
+ ["Corporate Events","Professional coverage for conferences and launches.","₹21,000","Per day"],
+ ["Music Video Shoot","Concept, filming and editing for a full music video.","On quote","Per project"],
+ ["Album Designing","Curated, printed wedding album design and layout.","₹6,000","Per album"],
+];
+const svcIcon = `<svg class="svc-icon" viewBox="0 0 24 24"><path d="M4 7h3l2-3h6l2 3h3v13H4z"/><circle cx="12" cy="13" r="3.5"/></svg>`;
+const servicesGrid = document.getElementById('servicesGrid');
+services.forEach(([title,desc,price,dur])=>{
+  const el = document.createElement('div');
+  el.className='svc-card glass reveal';
+  el.innerHTML = `${svcIcon}<h3>${title}</h3><p class="desc">${desc}</p>
+    <div class="svc-meta"><span>Price <b>${price}</b></span><span>Duration <b>${dur}</b></span></div>
+    <a href="#booking" class="btn btn-outline">Book Now</a>`;
+  servicesGrid.appendChild(el);
+});
+
+const categories = ["All","Wedding","Bride","Groom","Drone","Nature","Events","Tourism","Videos"];
+const items = [
+  ["Wedding","Reception Coverage"],["Bride","Bridal Portrait"],["Groom","Groom Portrait"],
+  ["Drone","Aerial Venue View"],["Nature","Dal Lake Session"],["Events","Mehendi Ceremony"],
+  ["Tourism","Gulmarg Location Shoot"],["Videos","Highlight Film Still"],["Wedding","Baraat Procession"],
+  ["Bride","Getting-Ready Moment"],["Nature","Chinar Avenue Portrait"],["Events","Reception Decor"],
+];
+const filterRow = document.getElementById('filterRow');
+categories.forEach((c,i)=>{
+  const b=document.createElement('button');
+  b.className='filter-btn'+(i===0?' active':'');
+  b.textContent=c; b.dataset.cat=c;
+  filterRow.appendChild(b);
+});
+const portfolioGrid = document.getElementById('portfolioGrid');
+const camIcon = `<svg class="cam" viewBox="0 0 24 24"><path d="M4 7h3l2-3h6l2 3h3v13H4z"/><circle cx="12" cy="13" r="3.5"/></svg>`;
+function renderGrid(filter){
+  portfolioGrid.innerHTML='';
+  items.filter(([cat])=> filter==='All' || cat===filter).forEach(([cat,label])=>{
+    const el=document.createElement('div');
+    el.className='grid-item';
+    el.innerHTML = `${camIcon}<span class="tag">${label}</span><span class="wm">VMC © preview</span>`;
+    el.addEventListener('click',()=>openLightbox(cat,label));
+    portfolioGrid.appendChild(el);
+  });
+}
+renderGrid('All');
+filterRow.addEventListener('click', e=>{
+  if(!e.target.classList.contains('filter-btn')) return;
+  filterRow.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
+  renderGrid(e.target.dataset.cat);
+});
+const lightbox=document.getElementById('lightbox'), lbTag=document.getElementById('lbTag');
+function openLightbox(cat,label){ lbTag.textContent=`${cat.toUpperCase()} · ${label} — replace with your real photo`; lightbox.classList.add('open'); }
+document.getElementById('lbClose').addEventListener('click',()=>lightbox.classList.remove('open'));
+lightbox.addEventListener('click', e=>{ if(e.target===lightbox) lightbox.classList.remove('open'); });
+
+const pricing = [
+ ["Silver","₹40,000",false,["1 Day Coverage","300+ Edited Photos","Online Gallery","No Album"]],
+ ["Gold","₹75,000",true,["2 Day Coverage","600+ Edited Photos","10x Album (30 pages)","Highlight Film (3 min)"]],
+ ["Platinum","₹1,20,000",false,["3 Day Coverage","1000+ Edited Photos","Premium Album","Cinematic Film (6 min)","Drone Coverage"]],
+ ["Diamond","₹2,00,000",false,["Full Event Coverage","Unlimited Edited Photos","2 Premium Albums","Full Documentary Film","Drone + Second Shooter"]],
+];
+const pricingGrid=document.getElementById('pricingGrid');
+pricing.forEach(([name,price,feat,list])=>{
+  const el=document.createElement('div');
+  el.className='price-card glass reveal'+(feat?' feat':'');
+  el.innerHTML = `${feat?'<div class="badge">Most Popular</div>':''}<h3>${name}</h3><div class="amt">${price}<span> onwards</span></div>
+   <ul>${list.map(i=>`<li>${i}</li>`).join('')}</ul><a href="#booking" class="btn ${feat?'btn-gold':'btn-outline'}" style="width:100%; display:block;">Book Now</a>`;
+  pricingGrid.appendChild(el);
+});
+
+const testimonials = [
+ ["★★★★★","They captured our three-day wedding like they'd known our family for years — candid, warm, unobtrusive.","Aisha & Zubair","Srinagar"],
+ ["★★★★★","The highlight film still gives us chills. Worth every rupee, and the team was punctual and calm all day.","Insha & Adil","Anantnag"],
+ ["★★★★★","Our pre-wedding shoot at Gulmarg looked like a film set. Muneer's eye for light is something else.","Sana & Owais","Baramulla"],
+];
+const testiWrap=document.getElementById('testiWrap');
+let tIdx=0;
+function renderTesti(){
+  testiWrap.innerHTML = testimonials.map((t,i)=>`
+    <div class="testi-slide ${i===tIdx?'active':''}">
+      <div class="testi-stars">${t[0]}</div>
+      <p class="testi-quote">"${t[1]}"</p>
+      <div class="testi-person">${t[2]}</div>
+      <div class="testi-loc">${t[3]}</div>
+    </div>`).join('') + `
+    <div class="testi-nav"><button id="tPrev">&#8592;</button><button id="tNext">&#8594;</button></div>`;
+  document.getElementById('tPrev').onclick=()=>{ tIdx=(tIdx-1+testimonials.length)%testimonials.length; renderTesti(); };
+  document.getElementById('tNext').onclick=()=>{ tIdx=(tIdx+1)%testimonials.length; renderTesti(); };
+}
+renderTesti();
+setInterval(()=>{ tIdx=(tIdx+1)%testimonials.length; renderTesti(); }, 6000);
+
+/* ---------- link booking form budget to service rates ---------- */
+const serviceRates = {};
+services.forEach(([title,,price])=>{ serviceRates[title] = price; });
+const serviceSelect = document.getElementById('serviceSelect');
+const budgetInput = document.getElementById('budgetInput');
+const budgetHelper = document.getElementById('budgetHelper');
+serviceSelect.addEventListener('change', function(){
+  const rate = serviceRates[this.value];
+  if(!rate){
+    budgetHelper.textContent = this.value === 'Other' ? 'Tell us your budget in Special Requirements below.' : 'Select a service to see its starting rate';
+    return;
+  }
+  if(rate === 'On quote'){
+    budgetInput.value = '';
+    budgetHelper.textContent = 'This service is quoted individually — leave budget blank or enter your expected range.';
+  } else {
+    const numeric = parseInt(rate.replace(/[^\d]/g,''), 10);
+    budgetInput.value = numeric;
+    budgetHelper.textContent = `Starting rate for ${this.value}: ${rate}. Feel free to adjust.`;
+  }
+});
+
+/* ---------- booking form ---------- */
+document.getElementById('bookingForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const id = 'VMC-' + Math.random().toString(36).slice(2,8).toUpperCase();
+  const fd = new FormData(this);
+  const box = document.getElementById('bookingConfirm');
+  const payload = {
+    bookingId: id,
+    name: fd.get('name'), phone: fd.get('phone'), whatsapp: fd.get('whatsapp'),
+    email: fd.get('email'), service: fd.get('service'), date: fd.get('date'),
+    venue: fd.get('venue'), budget: fd.get('budget'), advance: fd.get('advance')
+  };
+
+  box.innerHTML = `<b>Sending your booking request — ID ${id}...</b>`;
+  box.classList.add('show');
+
+  try{
+    const res = await fetch('/.netlify/functions/notify-booking', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    box.innerHTML = `<b>Booking request received — ID ${id}</b><br>
+      ${payload.name||''}, we've noted your request for <b>${payload.service||'a service'}</b> on <b>${payload.date||'your chosen date'}</b>.
+      Status: <b>Pending confirmation</b>. Our team will follow up within 24 hours.
+      <br><small style="color:var(--gray)">Confirmation — Email: ${data.results?.email||'n/a'} · SMS: ${data.results?.sms||'n/a'} · WhatsApp: ${data.results?.whatsapp||'n/a'}</small>`;
+  } catch(err){
+    box.innerHTML = `<b>Booking noted locally — ID ${id}</b><br>
+      We couldn't reach the notification service just now, but your request details are recorded on this page.
+      Please also reach us directly on WhatsApp to confirm.
+      <br><small style="color:var(--gray)">(Notification function not deployed or unreachable: ${err.message})</small>`;
+  }
+  this.reset();
+});
+document.getElementById('contactForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const box=document.getElementById('contactConfirm');
+  box.innerHTML = `<b>Message sent (locally).</b> We'll get back to you by email shortly.`;
+  box.classList.add('show'); this.reset();
+});
+
+/* ---------- counters ---------- */
+const counters=document.querySelectorAll('.counter h3');
+const counterObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      const el=entry.target, target=+el.dataset.count, isStar=el.dataset.star;
+      let cur=0; const step=Math.max(1,Math.round(target/40));
+      const t=setInterval(()=>{ cur+=step; if(cur>=target){cur=target; clearInterval(t);} el.textContent=cur+(isStar?'★':(target>=100?'+':'+')); },30);
+      counterObserver.unobserve(el);
+    }
+  });
+},{threshold:0.4});
+counters.forEach(c=>counterObserver.observe(c));
+
+/* ---------- reveal on scroll ---------- */
+const revealEls = document.querySelectorAll('.reveal, .svc-card, .price-card');
+const revealObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); revealObserver.unobserve(e.target);} });
+},{threshold:0.12});
+revealEls.forEach(el=>{ el.classList.add('reveal'); revealObserver.observe(el); });
+
+/* ---------- nav toggle ---------- */
+const burger=document.getElementById('burger'), navList=document.getElementById('navList');
+burger.addEventListener('click', ()=> navList.classList.toggle('open'));
+navList.querySelectorAll('a').forEach(a=>a.addEventListener('click', ()=> navList.classList.remove('open')));
+
+/* ---------- chinar leaf hero particles ---------- */
+const canvas=document.getElementById('leafCanvas');
+const ctx=canvas.getContext('2d');
+function resize(){ canvas.width=canvas.offsetWidth; canvas.height=canvas.offsetHeight; }
+resize(); window.addEventListener('resize',resize);
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const leaves = Array.from({length: reduceMotion?0:22},()=>({
+  x: Math.random()*canvas.width, y: Math.random()*canvas.height*-1,
+  r: 6+Math.random()*8, speed: 0.3+Math.random()*0.6, drift: Math.random()*2-1, rot: Math.random()*360, spin:(Math.random()-0.5)*0.6
+}));
+function drawLeaf(l){
+  ctx.save(); ctx.translate(l.x,l.y); ctx.rotate(l.rot*Math.PI/180);
+  ctx.strokeStyle='rgba(212,175,55,0.35)'; ctx.lineWidth=1;
+  ctx.beginPath();
+  ctx.moveTo(0,-l.r);
+  ctx.bezierCurveTo(l.r*0.6,-l.r*0.4, l.r*1.1, l.r*0.1, l.r*0.4, l.r*0.5);
+  ctx.bezierCurveTo(l.r*0.2, l.r*0.3, 0, l.r*0.4, 0, l.r*0.8);
+  ctx.bezierCurveTo(0,l.r*0.4,-l.r*0.2,l.r*0.3,-l.r*0.4,l.r*0.5);
+  ctx.bezierCurveTo(-l.r*1.1,l.r*0.1,-l.r*0.6,-l.r*0.4,0,-l.r);
+  ctx.stroke(); ctx.restore();
+}
+function loop(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  leaves.forEach(l=>{
+    l.y+=l.speed; l.x+=Math.sin(l.y*0.01)*l.drift*0.5; l.rot+=l.spin;
+    if(l.y> canvas.height+20){ l.y=-20; l.x=Math.random()*canvas.width; }
+    drawLeaf(l);
+  });
+  requestAnimationFrame(loop);
+}
+if(!reduceMotion) loop();
+
+/* ---------- header shrink on scroll ---------- */
+window.addEventListener('scroll', ()=>{
+  document.getElementById('siteHeader').style.padding = window.scrollY>40 ? '0' : '0';
+});
+</script>
+</body>
+</html>
