@@ -87,6 +87,8 @@ a{ color:inherit; }
 .btn-sm:hover{ background:var(--gold); color:#0D0D0D; }
 
 table{ width:100%; border-collapse:collapse; font-size:0.85rem; }
+.table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.table-wrap table{ min-width:560px; }
 thead th{ text-align:left; font-family:'Montserrat',sans-serif; font-size:0.64rem; letter-spacing:1.2px; text-transform:uppercase; color:var(--gray-dim); border-bottom:1px solid var(--line); padding:10px 12px; }
 tbody td{ padding:13px 12px; border-bottom:1px solid rgba(255,255,255,0.05); color:var(--gray); vertical-align:middle; }
 tbody tr:hover{ background:rgba(212,175,55,0.03); }
@@ -175,8 +177,10 @@ select.status-select{ background:#161412; border:1px solid var(--line); color:va
       <div class="grid-2">
         <div class="card">
           <div class="section-title" style="margin-top:0;">Recent Bookings</div>
+          <div class="table-wrap">
           <table><thead><tr><th>Client</th><th>Service</th><th>Date</th><th>Status</th></tr></thead>
           <tbody id="recentBookingsBody"></tbody></table>
+          </div>
         </div>
         <div class="card">
           <div class="section-title" style="margin-top:0;">Recent Messages</div>
@@ -197,10 +201,12 @@ select.status-select{ background:#161412; border:1px solid var(--line); color:va
           <button class="btn-sm" id="exportPdfBtn">Export PDF</button>
         </div>
       </div>
+      <div class="table-wrap">
       <table>
         <thead><tr><th>Booking ID</th><th>Client</th><th>Service</th><th>Date</th><th>Venue</th><th>Budget</th><th>Status</th></tr></thead>
         <tbody id="bookingsBody"></tbody>
       </table>
+      </div>
     </div>
 
     <!-- MESSAGES -->
@@ -247,10 +253,12 @@ select.status-select{ background:#161412; border:1px solid var(--line); color:va
     <!-- INVOICES -->
     <div class="panel" id="panel-invoices">
       <div class="topbar"><h2>Invoices</h2></div>
+      <div class="table-wrap">
       <table>
         <thead><tr><th>Invoice #</th><th>Client</th><th>Amount</th><th>Status</th><th></th></tr></thead>
         <tbody id="invoiceBody"></tbody>
       </table>
+      </div>
     </div>
 
     <!-- NOTIFICATIONS -->
