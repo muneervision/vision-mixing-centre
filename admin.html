@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700&family=Montserrat:wght@500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
 :root{
   --bg:#0D0D0D; --bg-panel:#151210; --gold:#D4AF37; --gold-soft:#e8c766;
@@ -489,8 +491,54 @@ function renderInvoices(){
   document.getElementById('invoiceBody').innerHTML = bookings.slice(0,8).map((b,i)=>`
     <tr><td>INV-${1000+i}</td><td>${b.name}</td><td>₹${Number(b.advance||0).toLocaleString('en-IN')}</td>
     <td>${statusBadge(b.status==='Cancelled'?'Cancelled':(b.status==='Pending'?'Pending':'Confirmed'))}</td>
-    <td><button class="btn-sm" onclick="alert('Wire this to a real PDF generator (e.g. the pdf skill / a server route) to download an actual invoice.')">Download</button></td></tr>`).join('')
+    <td><button class="btn-sm" data-invidx="${i}">Download</button></td></tr>`).join('')
     || `<tr><td colspan="5" style="color:var(--gray-dim);">No bookings yet.</td></tr>`;
+  document.querySelectorAll('#invoiceBody .btn-sm').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const b = bookings[+e.target.dataset.invidx];
+      downloadInvoicePdf(b, 1000 + (+e.target.dataset.invidx));
+    });
+  });
+}
+
+function downloadInvoicePdf(b, invNum){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFont('helvetica','bold'); doc.setFontSize(18);
+  doc.text('Vision Mixing Centre', 14, 20);
+  doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(120);
+  doc.text('Nowshera, Srinagar, Jammu & Kashmir, India', 14, 27);
+
+  doc.setDrawColor(212,175,55); doc.line(14, 32, 196, 32);
+
+  doc.setTextColor(20); doc.setFontSize(14); doc.setFont('helvetica','bold');
+  doc.text(`Invoice INV-${invNum}`, 14, 44);
+  doc.setFontSize(10); doc.setFont('helvetica','normal');
+  doc.text(`Booking ID: ${b.booking_id||'—'}`, 14, 52);
+  doc.text(`Date issued: ${new Date().toLocaleDateString('en-IN')}`, 14, 58);
+
+  doc.autoTable({
+    startY: 68,
+    head: [['Client','Service','Event Date','Venue','Status']],
+    body: [[ b.name||'', b.service||'', b.event_date||'', b.venue||'', b.status||'' ]],
+    styles: { fontSize: 9 },
+    headStyles: { fillColor: [40,32,20], textColor: [212,175,55] }
+  });
+
+  const afterTable = doc.lastAutoTable.finalY + 12;
+  doc.setFontSize(11);
+  doc.text(`Total Budget:`, 14, afterTable);
+  doc.text(`Rs ${Number(b.budget||0).toLocaleString('en-IN')}`, 80, afterTable);
+  doc.text(`Advance Paid:`, 14, afterTable+8);
+  doc.text(`Rs ${Number(b.advance||0).toLocaleString('en-IN')}`, 80, afterTable+8);
+  doc.setFont('helvetica','bold');
+  doc.text(`Balance Due:`, 14, afterTable+16);
+  doc.text(`Rs ${Math.max(0, Number(b.budget||0)-Number(b.advance||0)).toLocaleString('en-IN')}`, 80, afterTable+16);
+
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(140);
+  doc.text('Thank you for booking with Vision Mixing Centre.', 14, afterTable+32);
+
+  doc.save(`vmc-invoice-INV-${invNum}.pdf`);
 }
 
 /* ---------- portfolio upload preview ---------- */
@@ -518,7 +566,30 @@ document.getElementById('exportExcel').addEventListener('click', ()=>{
   URL.revokeObjectURL(url);
 });
 document.getElementById('exportPdfBtn').addEventListener('click', ()=>{
-  alert('PDF export needs a PDF-generation step (e.g. a small server route or a library like jsPDF) — happy to wire this up on request.');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFont('helvetica','bold'); doc.setFontSize(16);
+  doc.text('Vision Mixing Centre — Bookings Report', 14, 18);
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(120);
+  doc.text('Generated ' + new Date().toLocaleString('en-IN'), 14, 25);
+
+  const rows = bookings.map(b => [
+    b.booking_id||'', b.name||'', b.service||'', b.event_date||'', b.venue||'',
+    b.budget? ('Rs '+Number(b.budget).toLocaleString('en-IN')) : '',
+    b.advance? ('Rs '+Number(b.advance).toLocaleString('en-IN')) : '',
+    b.status||''
+  ]);
+
+  doc.autoTable({
+    startY: 32,
+    head: [['Booking ID','Client','Service','Date','Venue','Budget','Advance','Status']],
+    body: rows.length? rows : [['—','No bookings yet','—','—','—','—','—','—']],
+    styles: { fontSize: 8, cellPadding: 3 },
+    headStyles: { fillColor: [40,32,20], textColor: [212,175,55] },
+    alternateRowStyles: { fillColor: [245,245,245] }
+  });
+
+  doc.save('vmc-bookings-report.pdf');
 });
 
 /* ---------- notifications ---------- */
