@@ -258,6 +258,14 @@ input[type=file]{ padding:9px 10px; font-size:0.8rem;}
 .booking .btn{ grid-column:1/-1; justify-self:start; margin-top:6px;}
 .booking-confirm{ grid-column:1/-1; display:none; padding:22px; border:1px solid var(--gold); background:rgba(212,175,55,0.06); font-size:0.9rem; color:var(--gold);}
 .booking-confirm.show{ display:block;}
+.upi-note{ padding:0 !important; }
+.upi-note-inner{ border:1px solid var(--gold); background:rgba(212,175,55,0.06); padding:20px 22px; }
+.upi-id-row{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:10px; }
+.upi-id{ font-family:'Montserrat',sans-serif; font-size:1rem; letter-spacing:0.5px; color:var(--gold); font-weight:600; }
+.btn-copy{ font-family:'Montserrat',sans-serif; font-size:0.65rem; letter-spacing:1.2px; text-transform:uppercase; border:1px solid var(--gold); color:var(--gold); background:none; padding:7px 14px; cursor:pointer; transition:.25s; }
+.btn-copy:hover{ background:var(--gold); color:#0D0D0D; }
+.btn-copy.copied{ background:var(--gold); color:#0D0D0D; }
+.upi-note-inner p{ color:var(--gray); font-size:0.82rem; margin:0; }
 @media(max-width:900px){ .booking-wrap{grid-template-columns:1fr;} form.booking{grid-template-columns:1fr; padding:28px;} }
 
 /* ---------- pricing ---------- */
@@ -506,6 +514,16 @@ footer{ border-top:1px solid var(--line); padding:70px 0 30px;}
         <div class="field full"><label>Upload Inspiration Images</label><input type="file" name="inspiration" multiple accept="image/*"></div>
         <div class="field"><label>Coupon Code</label><input type="text" name="coupon" placeholder="Optional"></div>
         <div class="field"><label>Advance Amount (₹)</label><input type="number" name="advance" min="0" placeholder="e.g. 10000"></div>
+        <div class="field full upi-note">
+          <div class="upi-note-inner">
+            <span class="eyebrow" style="margin-bottom:8px;">Pay Advance via UPI</span>
+            <div class="upi-id-row">
+              <span class="upi-id">7780863589@yapl</span>
+              <button type="button" class="btn-copy" id="copyUpiBtn">Copy</button>
+            </div>
+            <p>Works with Google Pay, PhonePe, Paytm, Amazon Pay, or any UPI app. Please share a screenshot of your payment on WhatsApp after paying so we can confirm your booking faster.</p>
+          </div>
+        </div>
         <button type="submit" class="btn btn-gold">Submit Booking Request</button>
         <div class="booking-confirm" id="bookingConfirm"></div>
       </form>
@@ -753,6 +771,17 @@ serviceSelect.addEventListener('change', function(){
 });
 
 /* ---------- booking form ---------- */
+document.getElementById('copyUpiBtn').addEventListener('click', function(){
+  const upiId = '7780863589@yapl';
+  navigator.clipboard.writeText(upiId).then(()=>{
+    this.textContent = 'Copied!';
+    this.classList.add('copied');
+    setTimeout(()=>{ this.textContent = 'Copy'; this.classList.remove('copied'); }, 2000);
+  }).catch(()=>{
+    this.textContent = 'Tap to select';
+  });
+});
+
 document.getElementById('bookingForm').addEventListener('submit', async function(e){
   e.preventDefault();
   const id = 'VMC-' + Math.random().toString(36).slice(2,8).toUpperCase();
