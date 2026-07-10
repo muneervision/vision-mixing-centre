@@ -262,6 +262,7 @@ nav ul li a:hover, nav ul li a:focus-visible{ color:var(--gold); }
 
 /* ---------- booking ---------- */
 .booking-wrap{ display:grid; grid-template-columns:0.9fr 1.3fr; gap:60px;}
+.booking-wrap.song-wrap{ grid-template-columns:0.8fr 1.3fr; }
 .booking-side h2{ font-size:2.2rem; margin-bottom:20px;}
 .booking-side p{ color:var(--gray); margin-bottom:26px;}
 .booking-side ul{ list-style:none;}
@@ -290,7 +291,20 @@ input[type=file]{ padding:9px 10px; font-size:0.8rem;}
 .btn-copy:hover{ background:var(--gold); color:#0D0D0D; }
 .btn-copy.copied{ background:var(--gold); color:#0D0D0D; }
 .upi-note-inner p{ color:var(--gray); font-size:0.82rem; margin:0; }
-@media(max-width:900px){ .booking-wrap{grid-template-columns:1fr;} form.booking{grid-template-columns:1fr; padding:28px;} }
+.song-helper{
+  font-size:0.8rem; color:var(--gold); margin-top:8px; min-height:18px;
+  opacity:0; transform:translateY(-4px); transition:opacity .35s ease, transform .35s ease;
+}
+.song-helper.show{ opacity:1; transform:translateY(0); }
+.char-counter{ align-self:flex-end; font-size:0.7rem; color:var(--gray-dim); font-family:'Montserrat',sans-serif; margin-top:4px; }
+.char-counter.near-limit{ color:var(--gold); }
+@keyframes priceUpdatePulse{
+  0%{ box-shadow:0 0 0 rgba(212,175,55,0); border-color:var(--line); }
+  40%{ box-shadow:0 0 0 4px rgba(212,175,55,0.18); border-color:var(--gold); }
+  100%{ box-shadow:0 0 0 rgba(212,175,55,0); border-color:var(--gold); }
+}
+#songPriceSelect.pulse{ animation:priceUpdatePulse .7s ease; }
+@media(max-width:900px){ .booking-wrap, .booking-wrap.song-wrap{grid-template-columns:1fr;} form.booking{grid-template-columns:1fr; padding:28px;} }
 
 /* ---------- pricing ---------- */
 .pricing-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:22px;}
@@ -390,6 +404,7 @@ footer{ border-top:1px solid var(--line); padding:70px 0 30px;}
         <li><a href="#pricing">Pricing</a></li>
         <li><a href="#testimonials">Testimonials</a></li>
         <li><a href="#contact">Contact</a></li>
+        <li><a href="#song-request">Song Request</a></li>
         <li><a href="#booking" class="nav-cta">Book Now</a></li>
       </ul>
     </nav>
@@ -558,6 +573,77 @@ footer{ border-top:1px solid var(--line); padding:70px 0 30px;}
         </div>
         <button type="submit" class="btn btn-gold">Submit Booking Request</button>
         <div class="booking-confirm" id="bookingConfirm"></div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SONG CREATION REQUEST ===================== -->
+<section id="song-request">
+  <div class="container reveal">
+    <div class="chinar-divider"><div class="rule"></div><svg class="chinar-leaf" viewBox="0 0 100 100"><path d="M50 5 C55 20 70 25 85 30 C72 35 68 45 70 58 C58 50 52 52 50 62 C48 52 42 50 30 58 C32 45 28 35 15 30 C30 25 45 20 50 5 Z M50 62 L50 95"/></svg><div class="rule"></div></div>
+    <div class="sec-head">
+      <span class="eyebrow">Custom Song Creation</span>
+      <h2>Request a Song</h2>
+      <p>Wedding songs for the bride or groom, Naats, Nasheeds, Manqabats, Kalams, or a personal song — written and composed just for you.</p>
+    </div>
+    <div class="booking-wrap song-wrap">
+      <div class="booking-side">
+        <h2 style="font-size:1.9rem;">Bring your words to a melody</h2>
+        <p>Tell us who it's for and share any lyrics or ideas you already have — or leave it to us with just a theme in mind.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Written, composed and recorded by our team</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Share full lyrics, a few lines, or just a theme/idea</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> We'll reach out by email to confirm details and delivery time</li>
+        </ul>
+      </div>
+      <form class="booking glass" id="songForm">
+        <div class="field full"><label>Full Name</label><input type="text" required name="sname"></div>
+        <div class="field full"><label>Mobile Number</label><input type="tel" required name="sphone" placeholder="e.g. 9876543210"></div>
+        <div class="field full"><label>Email</label><input type="email" required name="semail"></div>
+        <div class="field full">
+          <label>Song Type</label>
+          <select name="songType" id="songTypeSelect" required>
+            <option value="">Choose a song type</option>
+            <optgroup label="Wedding Song">
+              <option value="Wedding Song — For Bride">Wedding Song — For Bride</option>
+              <option value="Wedding Song — For Groom">Wedding Song — For Groom</option>
+            </optgroup>
+            <optgroup label="Islamic Devotional">
+              <option value="Naat">Naat</option>
+              <option value="Nasheed">Nasheed</option>
+              <option value="Manqabat">Manqabat</option>
+              <option value="Kalam">Kalam</option>
+            </optgroup>
+            <option value="Personal Song">Personal Song</option>
+          </select>
+          <p id="songTypeHelper" class="song-helper"></p>
+        </div>
+        <div class="field full">
+          <label>Lyrics or Suggestion</label>
+          <textarea name="lyrics" id="lyricsBox" required maxlength="2000" placeholder="Paste your lyrics here, or describe the theme/story/names you'd like included..." style="min-height:140px;"></textarea>
+          <span id="lyricsCounter" class="char-counter">0 / 2000</span>
+        </div>
+        <div class="field full">
+          <label>Price</label>
+          <select name="songPrice" id="songPriceSelect" required>
+            <option value="2000">Wedding Song Creation — ₹2,000</option>
+            <option value="1500">Naat / Nasheed / Manqabat / Kalam — ₹1,500</option>
+            <option value="1200">Personal Song — ₹1,200</option>
+          </select>
+        </div>
+        <div class="field full upi-note">
+          <div class="upi-note-inner">
+            <span class="eyebrow" style="margin-bottom:8px;">Pay via UPI</span>
+            <div class="upi-id-row">
+              <span class="upi-id">7780863589@yapl</span>
+              <button type="button" class="btn-copy" id="copyUpiBtnSong">Copy</button>
+            </div>
+            <p>Works with Google Pay, PhonePe, Paytm, Amazon Pay, or any UPI app. Share your payment screenshot on WhatsApp to confirm.</p>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-gold">Submit Song Request</button>
+        <div class="booking-confirm" id="songConfirm"></div>
       </form>
     </div>
   </div>
@@ -875,6 +961,81 @@ document.getElementById('contactForm').addEventListener('submit', async function
     box.innerHTML = `<b>Message noted locally.</b> We had trouble saving it just now — feel free to also reach us directly on WhatsApp.`;
   }
   box.classList.add('show'); this.reset();
+});
+
+/* ---------- song creation request form ---------- */
+const songPriceMap = {
+  'Wedding Song — For Bride': '2000',
+  'Wedding Song — For Groom': '2000',
+  'Naat': '1500', 'Nasheed': '1500', 'Manqabat': '1500', 'Kalam': '1500',
+  'Personal Song': '1200'
+};
+const songHelperMap = {
+  'Wedding Song — For Bride': 'A song written from the groom\'s perspective, celebrating the bride — ready in time for your big day.',
+  'Wedding Song — For Groom': 'A song written from the bride\'s perspective, celebrating the groom — ready in time for your big day.',
+  'Naat': 'A devotional composition in praise of the Prophet Muhammad (peace be upon him).',
+  'Nasheed': 'A vocal-led devotional piece, with or without instrumentation, to your preference.',
+  'Manqabat': 'A devotional composition in praise of saints and pious figures.',
+  'Kalam': 'A spiritual poem set to melody, in the tradition you specify.',
+  'Personal Song': 'Any occasion — birthdays, anniversaries, tribute songs — written just for you.'
+};
+const songTypeSelect = document.getElementById('songTypeSelect');
+const songHelperEl = document.getElementById('songTypeHelper');
+const songPriceSelect = document.getElementById('songPriceSelect');
+songTypeSelect.addEventListener('change', function(){
+  const price = songPriceMap[this.value];
+  if(price){
+    songPriceSelect.value = price;
+    songPriceSelect.classList.remove('pulse');
+    void songPriceSelect.offsetWidth; // restart animation
+    songPriceSelect.classList.add('pulse');
+  }
+  const helperText = songHelperMap[this.value];
+  if(helperText){
+    songHelperEl.textContent = helperText;
+    songHelperEl.classList.remove('show');
+    void songHelperEl.offsetWidth;
+    songHelperEl.classList.add('show');
+  } else {
+    songHelperEl.classList.remove('show');
+  }
+});
+
+const lyricsBox = document.getElementById('lyricsBox');
+const lyricsCounter = document.getElementById('lyricsCounter');
+lyricsBox.addEventListener('input', function(){
+  const len = this.value.length;
+  lyricsCounter.textContent = `${len} / 2000`;
+  lyricsCounter.classList.toggle('near-limit', len > 1800);
+});
+
+document.getElementById('copyUpiBtnSong').addEventListener('click', function(){
+  const upiId = '7780863589@yapl';
+  navigator.clipboard.writeText(upiId).then(()=>{
+    this.textContent = 'Copied!'; this.classList.add('copied');
+    setTimeout(()=>{ this.textContent = 'Copy'; this.classList.remove('copied'); }, 2000);
+  }).catch(()=>{ this.textContent = 'Tap to select'; });
+});
+
+document.getElementById('songForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const id = 'SONG-' + Math.random().toString(36).slice(2,8).toUpperCase();
+  const fd = new FormData(this);
+  const box = document.getElementById('songConfirm');
+  try{
+    await sb.from('song_requests').insert({
+      request_id: id, name: fd.get('sname'), phone: fd.get('sphone'), email: fd.get('semail'),
+      song_type: fd.get('songType'), lyrics_suggestion: fd.get('lyrics'),
+      price: fd.get('songPrice'), status: 'Pending'
+    });
+    box.innerHTML = `<b>Song request received — ID ${id}</b><br>
+      Thanks ${fd.get('sname')||''}! We've noted your request for a <b>${fd.get('songType')||'song'}</b>.
+      We'll email you at ${fd.get('semail')||'your email'} to confirm details and timeline.`;
+  } catch(err){
+    box.innerHTML = `<b>Request noted — ID ${id}</b><br>We had trouble saving it just now — please also reach us on WhatsApp to confirm.`;
+  }
+  box.classList.add('show');
+  this.reset();
 });
 
 /* ---------- our work slider ---------- */
