@@ -72,6 +72,10 @@ section{position:relative; padding:120px 0;}
 .chinar-leaf{ width:26px; height:26px; fill:none; stroke:var(--gold); stroke-width:1.1; }
 
 /* ---------- nav ---------- */
+#scrollProgress{
+  position:fixed; top:0; left:0; height:3px; width:0%; z-index:1100;
+  background:linear-gradient(90deg, var(--wine), var(--gold)); transition:width .1s linear;
+}
 header{
   position:fixed; top:0; left:0; width:100%; z-index:1000;
   backdrop-filter: blur(14px);
@@ -94,6 +98,11 @@ nav ul li a{
   color:var(--gray); transition:color .25s;
   position:relative;
 }
+nav ul li a:not(.nav-cta)::after{
+  content:''; position:absolute; left:0; bottom:-6px; width:0; height:1px; background:var(--gold);
+  transition:width .3s ease;
+}
+nav ul li a:not(.nav-cta):hover::after{ width:100%; }
 nav ul li a:hover, nav ul li a:focus-visible{ color:var(--gold); }
 .nav-cta{
   border:1px solid var(--gold); padding:10px 22px; color:var(--gold) !important;
@@ -120,8 +129,16 @@ nav ul li a:hover, nav ul li a:focus-visible{ color:var(--gold); }
     radial-gradient(ellipse at 30% 20%, var(--wine-soft), transparent 55%),
     radial-gradient(ellipse at 80% 80%, rgba(212,175,55,0.10), transparent 50%),
     linear-gradient(180deg, #0a0908 0%, #0D0D0D 60%, #0a0908 100%);
+  background-size: 140% 140%, 140% 140%, 100% 100%;
+  animation: heroDrift 22s ease-in-out infinite alternate;
   overflow:hidden;
 }
+@keyframes heroDrift{
+  0%{ background-position: 20% 10%, 85% 85%, 0 0; }
+  50%{ background-position: 35% 25%, 70% 70%, 0 0; }
+  100%{ background-position: 15% 30%, 90% 60%, 0 0; }
+}
+@media (prefers-reduced-motion: reduce){ .hero{ animation:none; } }
 .hero::after{
   content:''; position:absolute; inset:0; pointer-events:none;
   background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, transparent 1px, transparent 3px);
@@ -138,9 +155,16 @@ nav ul li a:hover, nav ul li a:focus-visible{ color:var(--gold); }
 .btn{
   font-family:'Montserrat',sans-serif; font-size:0.75rem; letter-spacing:2px; text-transform:uppercase;
   padding:16px 34px; border-radius:1px; cursor:pointer; transition:.3s; display:inline-block; border:1px solid transparent;
+  position:relative; overflow:hidden;
 }
 .btn-gold{ background:var(--gold); color:#0D0D0D; font-weight:600;}
-.btn-gold:hover{ background:var(--gold-soft); transform:translateY(-2px); }
+.btn-gold:hover{ background:var(--gold-soft); transform:translateY(-2px); box-shadow:0 10px 30px -8px rgba(212,175,55,0.5); }
+.btn-gold::before{
+  content:''; position:absolute; top:0; left:-60%; width:40%; height:100%;
+  background:linear-gradient(120deg, transparent, rgba(255,255,255,0.5), transparent);
+  transform:skewX(-20deg); transition:left .6s ease;
+}
+.btn-gold:hover::before{ left:130%; }
 .btn-outline{ border-color:var(--gold); color:var(--gold);}
 .btn-outline:hover{ background:rgba(212,175,55,0.1); transform:translateY(-2px); }
 .hero-tags{
@@ -199,7 +223,7 @@ nav ul li a:hover, nav ul li a:focus-visible{ color:var(--gold); }
 /* ---------- services ---------- */
 .services-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:26px;}
 .svc-card{ padding:38px 30px; transition:.35s; position:relative;}
-.svc-card:hover{ transform:translateY(-6px); border-color:var(--gold);}
+.svc-card:hover{ transform:translateY(-6px); border-color:var(--gold); box-shadow:0 16px 40px -12px rgba(212,175,55,0.25);}
 .svc-icon{ width:42px; height:42px; stroke:var(--gold); fill:none; stroke-width:1.2; margin-bottom:22px;}
 .svc-card h3{ font-size:1.2rem; margin-bottom:10px;}
 .svc-card p.desc{ color:var(--gray); font-size:0.88rem; margin-bottom:18px;}
@@ -220,7 +244,7 @@ nav ul li a:hover, nav ul li a:focus-visible{ color:var(--gold); }
   background:linear-gradient(150deg,#1a1512,#0d0d0d 65%,#2a1218);
   display:flex; align-items:center; justify-content:center; transition:.4s;
 }
-.grid-item:hover{ transform:scale(1.02); border-color:var(--gold);}
+.grid-item:hover{ transform:scale(1.03); border-color:var(--gold); box-shadow:0 16px 40px -12px rgba(212,175,55,0.3);}
 .grid-item .cam{ width:46px; height:46px; stroke:var(--gray-dim); fill:none; stroke-width:1; transition:.3s;}
 .grid-item:hover .cam{ stroke:var(--gold);}
 .grid-item .tag{
@@ -271,7 +295,12 @@ input[type=file]{ padding:9px 10px; font-size:0.8rem;}
 /* ---------- pricing ---------- */
 .pricing-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:22px;}
 .price-card{ padding:44px 30px; text-align:center; position:relative;}
-.price-card.feat{ border-color:var(--gold); transform:scale(1.03);}
+.price-card.feat{ border-color:var(--gold); transform:scale(1.03); animation:priceGlow 3.5s ease-in-out infinite; }
+@keyframes priceGlow{
+  0%,100%{ box-shadow:0 0 0 rgba(212,175,55,0); }
+  50%{ box-shadow:0 0 32px -6px rgba(212,175,55,0.45); }
+}
+@media (prefers-reduced-motion: reduce){ .price-card.feat{ animation:none; } }
 .price-card .badge{ position:absolute; top:-13px; left:50%; transform:translateX(-50%); background:var(--gold); color:#0d0d0d; font-family:'Montserrat',sans-serif; font-size:0.62rem; letter-spacing:1.4px; padding:5px 14px; text-transform:uppercase; font-weight:700;}
 .price-card h3{ font-size:1.3rem; letter-spacing:1px;}
 .price-card .amt{ font-size:2.4rem; color:var(--gold); margin:18px 0 6px; font-family:'Playfair Display',serif;}
@@ -282,7 +311,9 @@ input[type=file]{ padding:9px 10px; font-size:0.8rem;}
 
 /* ---------- testimonials ---------- */
 .testi-wrap{ max-width:760px; margin:0 auto; text-align:center; position:relative;}
-.testi-slide{ display:none;}
+.testi-wrap{ position:relative; min-height:220px; }
+.testi-slide{ display:none; opacity:0; transition:opacity .5s ease; }
+.testi-slide.active{ display:block; opacity:1; }
 .testi-slide.active{ display:block;}
 .testi-stars{ color:var(--gold); font-size:1rem; letter-spacing:3px; margin-bottom:20px;}
 .testi-quote{ font-family:'Playfair Display',serif; font-style:italic; font-size:1.3rem; line-height:1.6; margin-bottom:26px;}
@@ -345,6 +376,7 @@ footer{ border-top:1px solid var(--line); padding:70px 0 30px;}
 </head>
 <body>
 
+<div id="scrollProgress"></div>
 <header id="siteHeader">
   <div class="nav-wrap">
     <div class="brand">VISION MIXING CENTRE<span>SRINAGAR · KASHMIR</span></div>
@@ -723,13 +755,18 @@ const testiWrap=document.getElementById('testiWrap');
 let tIdx=0;
 function renderTesti(){
   testiWrap.innerHTML = testimonials.map((t,i)=>`
-    <div class="testi-slide ${i===tIdx?'active':''}">
+    <div class="testi-slide" data-idx="${i}">
       <div class="testi-stars">${t[0]}</div>
       <p class="testi-quote">"${t[1]}"</p>
       <div class="testi-person">${t[2]}</div>
       <div class="testi-loc">${t[3]}</div>
     </div>`).join('') + `
     <div class="testi-nav"><button id="tPrev">&#8592;</button><button id="tNext">&#8594;</button></div>`;
+  // Fade the active slide in on the next frame so the CSS transition actually plays
+  requestAnimationFrame(()=>{
+    const el = testiWrap.querySelector(`.testi-slide[data-idx="${tIdx}"]`);
+    if(el) el.classList.add('active');
+  });
   document.getElementById('tPrev').onclick=()=>{ tIdx=(tIdx-1+testimonials.length)%testimonials.length; renderTesti(); };
   document.getElementById('tNext').onclick=()=>{ tIdx=(tIdx+1)%testimonials.length; renderTesti(); };
 }
@@ -934,6 +971,26 @@ if(!reduceMotion) loop();
 /* ---------- header shrink on scroll ---------- */
 window.addEventListener('scroll', ()=>{
   document.getElementById('siteHeader').style.padding = window.scrollY>40 ? '0' : '0';
+});
+
+/* ---------- scroll progress bar ---------- */
+const scrollProgress = document.getElementById('scrollProgress');
+const heroContentEl = document.querySelector('.hero-content');
+window.addEventListener('scroll', ()=>{
+  const h = document.documentElement;
+  const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+  scrollProgress.style.width = scrolled + '%';
+  if(heroContentEl && window.scrollY < window.innerHeight && !reduceMotion){
+    heroContentEl.style.transform = `translateY(${window.scrollY * 0.25}px)`;
+    heroContentEl.style.opacity = Math.max(0, 1 - window.scrollY / (window.innerHeight*0.8));
+  }
+});
+
+/* ---------- staggered cascade reveal for card grids ---------- */
+document.querySelectorAll('.services-grid, .pricing-grid, .grid-gallery').forEach(grid=>{
+  [...grid.children].forEach((card, i)=>{
+    card.style.transitionDelay = Math.min(i * 70, 420) + 'ms';
+  });
 });
 </script>
 </body>
