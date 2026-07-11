@@ -387,6 +387,8 @@ footer{ border-top:1px solid var(--line); padding:70px 0 30px;}
 .dev-notice b{ color:var(--gold);}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 
@@ -931,6 +933,8 @@ document.getElementById('bookingForm').addEventListener('submit', async function
     });
   } catch(dbErr){ console.error('Supabase insert failed:', dbErr); }
 
+  const downloadBtnHtml = `<button type="button" class="btn btn-gold" id="downloadInvoiceBtn" style="margin-top:16px; padding:12px 26px; font-size:0.68rem;">Download Your Invoice (PDF)</button>`;
+
   try{
     const res = await fetch('/.netlify/functions/notify-booking', {
       method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
@@ -939,14 +943,100 @@ document.getElementById('bookingForm').addEventListener('submit', async function
     box.innerHTML = `<b>Booking request received — ID ${id}</b><br>
       ${payload.name||''}, we've noted your request for <b>${payload.service||'a service'}</b> on <b>${payload.date||'your chosen date'}</b>.
       Status: <b>Pending confirmation</b>. Our team will follow up within 24 hours.
-      <br><small style="color:var(--gray)">Confirmation — Email: ${data.results?.email||'n/a'} · SMS: ${data.results?.sms||'n/a'} · WhatsApp: ${data.results?.whatsapp||'n/a'}</small>`;
+      <br><small style="color:var(--gray)">Confirmation — Email: ${data.results?.email||'n/a'} · SMS: ${data.results?.sms||'n/a'} · WhatsApp: ${data.results?.whatsapp||'n/a'}</small>
+      <br>${downloadBtnHtml}`;
   } catch(err){
     box.innerHTML = `<b>Booking noted — ID ${id}</b><br>
       Your request is saved. We couldn't reach the notification service just now — please also reach us directly on WhatsApp to confirm.
-      <br><small style="color:var(--gray)">(Notification function not deployed or unreachable: ${err.message})</small>`;
+      <br><small style="color:var(--gray)">(Notification function not deployed or unreachable: ${err.message})</small>
+      <br>${downloadBtnHtml}`;
   }
+  document.getElementById('downloadInvoiceBtn').addEventListener('click', ()=> downloadClientInvoice(payload));
   this.reset();
 });
+
+function downloadClientInvoice(payload){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const goldRGB = [212,175,55], wineRGB = [74,20,32], darkRGB = [13,13,13];
+
+  // Header band
+  doc.setFillColor(...darkRGB);
+  doc.rect(0, 0, 210, 42, 'F');
+  doc.setFillColor(...goldRGB);
+  doc.rect(0, 42, 210, 1.2, 'F');
+
+  doc.setTextColor(255,255,255);
+  doc.setFont('times','bolditalic'); doc.setFontSize(22);
+  doc.text('Vision Mixing Centre', 14, 20);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9);
+  doc.setTextColor(...goldRGB);
+  doc.text('WEDDING PHOTOGRAPHY & CINEMATIC FILMS', 14, 27);
+  doc.setTextColor(200,200,200);
+  doc.text('Nowshera, Srinagar, Jammu & Kashmir, India', 14, 34);
+
+  doc.setTextColor(...goldRGB);
+  doc.setFontSize(11); doc.setFont('helvetica','bold');
+  doc.text('BOOKING', 196, 18, { align:'right' });
+  doc.text('CONFIRMATION', 196, 25, { align:'right' });
+  doc.setFontSize(9); doc.setTextColor(200,200,200); doc.setFont('helvetica','normal');
+  doc.text(payload.bookingId, 196, 33, { align:'right' });
+
+  // Thank-you line
+  doc.setTextColor(40,40,40);
+  doc.setFont('times','italic'); doc.setFontSize(13);
+  doc.text(`Thank you, ${payload.name||'Guest'} — your story is in good hands.`, 14, 54);
+
+  // Details table
+  const rows = [
+    ['Booking ID', payload.bookingId],
+    ['Service', payload.service || '-'],
+    ['Event Date', payload.date || 'To be confirmed'],
+    ['Venue', payload.venue || 'To be confirmed'],
+    ['Phone', payload.phone || '-'],
+    ['Email', payload.email || '-'],
+  ];
+  doc.autoTable({
+    startY: 62,
+    theme: 'plain',
+    body: rows,
+    styles: { fontSize: 10.5, cellPadding: {top:3.5, bottom:3.5, left:0, right:4} },
+    columnStyles: { 0: { fontStyle:'bold', textColor:[90,90,90], cellWidth:45 }, 1: { textColor:[20,20,20] } },
+    didParseCell: function(data){ data.cell.styles.lineWidth = 0; }
+  });
+  let y = doc.lastAutoTable.finalY + 4;
+  doc.setDrawColor(...goldRGB); doc.setLineWidth(0.4);
+  doc.line(14, y, 196, y);
+  y += 10;
+
+  // Payment box
+  doc.setFillColor(250,247,235);
+  doc.setDrawColor(...goldRGB);
+  doc.roundedRect(14, y, 182, 34, 2, 2, 'FD');
+  doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...wineRGB);
+  doc.text('Budget & Advance', 20, y+9);
+  doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(30,30,30);
+  doc.text(`Total Budget:   Rs ${Number(payload.budget||0).toLocaleString('en-IN')}`, 20, y+18);
+  doc.text(`Advance to Pay: Rs ${Number(payload.advance||0).toLocaleString('en-IN')}`, 20, y+26);
+  doc.setFont('helvetica','bold'); doc.setTextColor(...wineRGB);
+  doc.text('UPI: 7780863589@yapl', 120, y+18);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(90,90,90);
+  doc.text('Google Pay / PhonePe / Paytm / Amazon Pay', 120, y+24);
+  doc.text('Share your payment screenshot on WhatsApp', 120, y+29);
+
+  y += 44;
+  doc.setFont('helvetica','italic'); doc.setFontSize(9); doc.setTextColor(120,120,120);
+  doc.text('Status: Pending confirmation — our team will reach out within 24 hours to finalize details.', 14, y);
+
+  // Footer
+  doc.setFillColor(...darkRGB);
+  doc.rect(0, 282, 210, 15, 'F');
+  doc.setTextColor(...goldRGB); doc.setFontSize(9); doc.setFont('times','italic');
+  doc.text('Capturing memories that outlive the moment.', 105, 291, { align:'center' });
+
+  doc.save(`VMC-Invoice-${payload.bookingId}.pdf`);
+}
+
 document.getElementById('contactForm').addEventListener('submit', async function(e){
   e.preventDefault();
   const box=document.getElementById('contactConfirm');
