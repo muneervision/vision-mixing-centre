@@ -606,7 +606,7 @@ footer{ border-top:1px solid var(--line); padding:70px 0 30px;}
         <div class="field full">
           <label>Song Type</label>
           <select name="songType" id="songTypeSelect" required>
-            <option value="">Choose a song type</option>
+            <option value="">Choose a creation type</option>
             <optgroup label="Wedding Song">
               <option value="Wedding Song — For Bride">Wedding Song — For Bride</option>
               <option value="Wedding Song — For Groom">Wedding Song — For Groom</option>
@@ -618,6 +618,10 @@ footer{ border-top:1px solid var(--line); padding:70px 0 30px;}
               <option value="Kalam">Kalam</option>
             </optgroup>
             <option value="Personal Song">Personal Song</option>
+            <optgroup label="Poster Design">
+              <option value="Poster Design">Poster Design</option>
+              <option value="Sad Demise Poster">Sad Demise Poster</option>
+            </optgroup>
           </select>
           <p id="songTypeHelper" class="song-helper"></p>
         </div>
@@ -632,6 +636,8 @@ footer{ border-top:1px solid var(--line); padding:70px 0 30px;}
             <option value="2000">Wedding Song Creation — ₹2,000</option>
             <option value="1500">Naat / Nasheed / Manqabat / Kalam — ₹1,500</option>
             <option value="1200">Personal Song — ₹1,200</option>
+            <option value="500">Poster Design — ₹500</option>
+            <option value="300">Sad Demise Poster — ₹300</option>
           </select>
         </div>
         <div class="field full upi-note">
@@ -1058,7 +1064,9 @@ const songPriceMap = {
   'Wedding Song — For Bride': '2000',
   'Wedding Song — For Groom': '2000',
   'Naat': '1500', 'Nasheed': '1500', 'Manqabat': '1500', 'Kalam': '1500',
-  'Personal Song': '1200'
+  'Personal Song': '1200',
+  'Poster Design': '500',
+  'Sad Demise Poster': '300'
 };
 const songHelperMap = {
   'Wedding Song — For Bride': 'A song written from the groom\'s perspective, celebrating the bride — ready in time for your big day.',
@@ -1067,7 +1075,9 @@ const songHelperMap = {
   'Nasheed': 'A vocal-led devotional piece, with or without instrumentation, to your preference.',
   'Manqabat': 'A devotional composition in praise of saints and pious figures.',
   'Kalam': 'A spiritual poem set to melody, in the tradition you specify.',
-  'Personal Song': 'Any occasion — birthdays, anniversaries, tribute songs — written just for you.'
+  'Personal Song': 'Any occasion — birthdays, anniversaries, tribute songs — written just for you.',
+  'Poster Design': 'A custom-designed poster for any occasion — share your photos, text, and preferred style.',
+  'Sad Demise Poster': 'A respectful memorial/condolence poster, designed with care — share details and any photo you\'d like included.'
 };
 const songTypeSelect = document.getElementById('songTypeSelect');
 const songHelperEl = document.getElementById('songTypeHelper');
