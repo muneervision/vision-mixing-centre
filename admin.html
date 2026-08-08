@@ -242,7 +242,7 @@ select.status-select{ background:#161412; border:1px solid var(--line); color:va
       </div>
       <div class="table-wrap">
       <table>
-        <thead><tr><th>Request ID</th><th>Name</th><th>Phone</th><th>Email</th><th>Type</th><th>Lyrics/Suggestion</th><th>Price</th><th>Status</th></tr></thead>
+        <thead><tr><th>Request ID</th><th>Name</th><th>Phone</th><th>Email</th><th>Type</th><th>Description</th><th>Photo</th><th>Price</th><th>Status</th></tr></thead>
         <tbody id="songsBody"></tbody>
       </table>
       </div>
@@ -429,13 +429,15 @@ function renderSongsTable(filter='All'){
   const list = filter==='All'? songRequests : songRequests.filter(s=>s.status===filter);
   body.innerHTML = list.map(s=>`
     <tr>
-      <td>${s.request_id}</td><td>${s.name}</td><td>${s.phone||''}</td><td>${s.email}</td><td>${s.song_type||''}</td>
+      <td>${s.request_id}</td><td>${s.name}</td><td>${s.phone||''}</td><td>${s.email}</td>
+      <td>${s.song_type||''}${s.poster_theme?`<br><span style="color:var(--gray-dim); font-size:0.72rem;">${s.poster_theme}</span>`:''}</td>
       <td style="max-width:220px; white-space:normal;">${(s.lyrics_suggestion||'').slice(0,120)}${(s.lyrics_suggestion||'').length>120?'…':''}</td>
+      <td>${s.photo_data ? `<img src="${s.photo_data}" style="width:44px; height:44px; object-fit:cover; border:1px solid var(--line); cursor:pointer;" onclick="window.open('${s.photo_data}','_blank')">` : '—'}</td>
       <td>₹${Number(s.price||0).toLocaleString('en-IN')}</td>
       <td><select class="status-select" data-songid="${s.id}">
         ${statuses.map(st=>`<option ${st===s.status?'selected':''}>${st}</option>`).join('')}
       </select></td>
-    </tr>`).join('') || `<tr><td colspan="8" style="color:var(--gray-dim);">No song requests yet.</td></tr>`;
+    </tr>`).join('') || `<tr><td colspan="9" style="color:var(--gray-dim);">No song requests yet.</td></tr>`;
   body.querySelectorAll('.status-select').forEach(sel=>{
     sel.addEventListener('change', async e=>{
       const id = e.target.dataset.songid;
