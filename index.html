@@ -407,7 +407,6 @@ footer{ border-top:1px solid var(--line); padding:70px 0 30px;}
         <li><a href="#home">Home</a></li>
         <li><a href="#about">About</a></li>
         <li><a href="#services">Services</a></li>
-        <li><a href="#portfolio">Portfolio</a></li>
         <li><a href="#pricing">Pricing</a></li>
         <li><a href="#testimonials">Testimonials</a></li>
         <li><a href="#videos">Videos</a></li>
@@ -430,7 +429,7 @@ footer{ border-top:1px solid var(--line); padding:70px 0 30px;}
       <p class="sub">Vision Mixing Centre is a Srinagar-based studio crafting timeless wedding photography and cinematic films across Kashmir — from the Dal Lake shikara to the chinar-lined avenues of Nowshera.</p>
       <div class="btn-row">
         <a href="#booking" class="btn btn-gold">Book Now</a>
-        <a href="#portfolio" class="btn btn-outline">View Portfolio</a>
+        <a href="#services" class="btn btn-outline">View Services</a>
       </div>
     </div>
   </div>
@@ -498,19 +497,6 @@ footer{ border-top:1px solid var(--line); padding:70px 0 30px;}
       <p>Every package can be tailored — combine, extend or simplify any of the below when you book.</p>
     </div>
     <div class="services-grid" id="servicesGrid"></div>
-  </div>
-</section>
-
-<!-- ===================== PORTFOLIO ===================== -->
-<section id="portfolio">
-  <div class="container reveal">
-    <div class="sec-head">
-      <span class="eyebrow">Selected Work</span>
-      <h2>Portfolio</h2>
-      <p>Placeholder frames below — swap these for your real photography when you connect a media library.</p>
-    </div>
-    <div class="filter-row" id="filterRow"></div>
-    <div class="grid-gallery" id="portfolioGrid"></div>
   </div>
 </section>
 
@@ -787,7 +773,7 @@ footer{ border-top:1px solid var(--line); padding:70px 0 30px;}
           <a href="#" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-7.8 13.4L3 21l4.7-1.2A9 9 0 1 0 12 3z"/></svg></a>
         </div>
       </div>
-      <div><h5>Quick Links</h5><ul><li><a href="#about">About Us</a></li><li><a href="#services">Services</a></li><li><a href="#portfolio">Portfolio</a></li><li><a href="#pricing">Pricing</a></li></ul></div>
+      <div><h5>Quick Links</h5><ul><li><a href="#about">About Us</a></li><li><a href="#services">Services</a></li><li><a href="#pricing">Pricing</a></li></ul></div>
       <div><h5>Studio</h5><ul><li><a href="#booking">Booking</a></li><li><a href="#testimonials">Testimonials</a></li><li><a href="#contact">Contact</a></li><li><a href="#">Blog</a></li></ul></div>
       <div><h5>Newsletter</h5><p style="color:var(--gray); font-size:0.85rem; margin-bottom:14px;">Photography tips &amp; latest shoots, occasionally.</p>
         <div style="display:flex; border:1px solid var(--line);">
@@ -832,59 +818,7 @@ services.forEach(([title,desc,price,dur])=>{
   servicesGrid.appendChild(el);
 });
 
-const categories = ["All","Wedding","Bride","Groom","Drone","Nature","Events","Tourism","Videos"];
-const filterRow = document.getElementById('filterRow');
-categories.forEach((c,i)=>{
-  const b=document.createElement('button');
-  b.className='filter-btn'+(i===0?' active':'');
-  b.textContent=c; b.dataset.cat=c;
-  filterRow.appendChild(b);
-});
-const portfolioGrid = document.getElementById('portfolioGrid');
-const camIcon = `<svg class="cam" viewBox="0 0 24 24"><path d="M4 7h3l2-3h6l2 3h3v13H4z"/><circle cx="12" cy="13" r="3.5"/></svg>`;
-let livePortfolio = [];
-
-function portfolioImgUrl(path){
-  const { data } = sb.storage.from('portfolio-media').getPublicUrl(path);
-  return data.publicUrl;
-}
-
-function renderGrid(filter){
-  portfolioGrid.innerHTML='';
-  const list = livePortfolio.filter(p=> filter==='All' || p.category===filter);
-  if(list.length === 0){
-    portfolioGrid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:var(--gray-dim); padding:30px 0;">More photos coming soon in this category.</p>`;
-    return;
-  }
-  list.forEach(p=>{
-    const el=document.createElement('div');
-    el.className='grid-item';
-    if(p.media_type === 'video'){
-      el.innerHTML = `${camIcon}<span class="tag">${p.title||'Video'}</span>`;
-      el.addEventListener('click', ()=> window.open(p.video_url, '_blank'));
-    } else {
-      el.innerHTML = `<img src="${portfolioImgUrl(p.file_path)}" alt="${p.title||''}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"><span class="tag" style="z-index:1;">${p.title||''}</span>`;
-      el.addEventListener('click', ()=> openLightboxImg(portfolioImgUrl(p.file_path), p.title||''));
-    }
-    portfolioGrid.appendChild(el);
-  });
-}
-
-async function loadLivePortfolio(){
-  const { data, error } = await sb.from('portfolio_items').select('*').order('created_at', { ascending:false });
-  livePortfolio = error ? [] : data;
-  renderGrid('All');
-}
-loadLivePortfolio();
-
-filterRow.addEventListener('click', e=>{
-  if(!e.target.classList.contains('filter-btn')) return;
-  filterRow.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  e.target.classList.add('active');
-  renderGrid(e.target.dataset.cat);
-});
 const lightbox=document.getElementById('lightbox'), lbTag=document.getElementById('lbTag');
-function openLightbox(cat,label){ lbTag.textContent=`${cat.toUpperCase()} · ${label} — replace with your real photo`; lightbox.classList.add('open'); }
 function openLightboxImg(url, title){
   document.querySelector('.lb-box').innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;">`;
   lbTag.textContent = title || '';
