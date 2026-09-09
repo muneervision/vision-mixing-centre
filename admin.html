@@ -300,7 +300,12 @@ select.status-select{ background:#161412; border:1px solid var(--line); color:va
           <input type="text" id="newTLoc" placeholder="Location (e.g. Srinagar)" style="background:rgba(255,255,255,0.03); border:1px solid var(--line); color:var(--white); padding:11px;">
         </div>
         <textarea id="newTText" placeholder="Their review..." style="width:100%; background:rgba(255,255,255,0.03); border:1px solid var(--line); color:var(--white); padding:11px; min-height:80px; font-family:'Poppins',sans-serif; margin-bottom:12px;"></textarea>
+        <div style="margin-bottom:12px;">
+          <label style="display:block; font-family:'Montserrat',sans-serif; font-size:0.65rem; letter-spacing:1px; text-transform:uppercase; color:var(--gray); margin-bottom:8px;">Photo (1280×720 recommended)</label>
+          <input type="file" id="newTPhoto" accept="image/*">
+        </div>
         <button class="btn-sm" id="addTestiBtn">Add Testimonial</button>
+        <div id="testiStatus" style="margin-top:8px; font-size:0.78rem; color:var(--gray);"></div>
       </div>
       <div class="card" id="testiList"></div>
     </div>
@@ -556,14 +561,30 @@ document.getElementById('addTestiBtn').addEventListener('click', async ()=>{
   const name = document.getElementById('newTName').value.trim();
   const location = document.getElementById('newTLoc').value.trim();
   const quote = document.getElementById('newTText').value.trim();
+  const file = document.getElementById('newTPhoto').files[0];
+  const statusEl = document.getElementById('testiStatus');
   if(!name || !quote){ alert('Please fill in at least name and review text.'); return; }
-  const { data, error } = await sb.from('testimonials').insert({ name, location, quote, stars:5 }).select();
-  if(error){ alert('Failed to add: ' + error.message); return; }
+
+  let photo_url = null;
+  if(file){
+    statusEl.textContent = 'Uploading photo...';
+    const path = `testimonials/${Date.now()}-${file.name}`;
+    const { error: upErr } = await sb.storage.from('portfolio-media').upload(path, file);
+    if(upErr){ statusEl.textContent = 'Photo upload failed: ' + upErr.message; return; }
+    const { data: urlData } = sb.storage.from('portfolio-media').getPublicUrl(path);
+    photo_url = urlData.publicUrl;
+  }
+
+  statusEl.textContent = 'Saving...';
+  const { data, error } = await sb.from('testimonials').insert({ name, location, quote, stars:5, photo_url }).select();
+  if(error){ statusEl.textContent = 'Failed: ' + error.message; return; }
   testimonials.unshift(data[0]);
   renderTestimonials();
   document.getElementById('newTName').value='';
   document.getElementById('newTLoc').value='';
   document.getElementById('newTText').value='';
+  document.getElementById('newTPhoto').value='';
+  statusEl.textContent = 'Added!';
 });
 
 function renderCalendar(){
