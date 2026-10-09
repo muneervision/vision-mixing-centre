@@ -878,6 +878,11 @@ footer{ border-top:1px solid var(--line); padding:70px 0 30px;}
 </div>
 
 <script>
+/* ---------- Supabase client (must be first — everything below depends on it) ---------- */
+const SUPABASE_URL = 'https://fnjhhacisnyfjeyosfwk.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuamhoYWNpc255ZmpleW9zZndrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0MTYyODIsImV4cCI6MjA5ODk5MjI4Mn0.WqSGgrwqwrN6O8aaKmYP0Fuko9kZPbMZozsID5flVzE';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 /* ---------- data ---------- */
 const services = [
  ["Photography / Videography Shoot","Combined photo and video coverage of your event, blending candid stills with cinematic footage for a complete keepsake.","₹35,000","8–10 hrs"],
@@ -984,10 +989,6 @@ pricing.forEach(([name,price,feat,list])=>{
    <ul>${list.map(i=>`<li>${i}</li>`).join('')}</ul><a href="#booking" class="btn ${feat?'btn-gold':'btn-outline'}" style="width:100%; display:block;">Book Now</a>`;
   pricingGrid.appendChild(el);
 });
-
-const SUPABASE_URL = 'https://fnjhhacisnyfjeyosfwk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuamhoYWNpc255ZmpleW9zZndrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0MTYyODIsImV4cCI6MjA5ODk5MjI4Mn0.WqSGgrwqwrN6O8aaKmYP0Fuko9kZPbMZozsID5flVzE';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const fallbackTestimonials = [
  ["★★★★★","They captured our three-day wedding like they'd known our family for years — candid, warm, unobtrusive.","Aisha & Zubair","Srinagar",null],
