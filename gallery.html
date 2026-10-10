@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Your Photo Gallery | Vision Mixing Centre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700&family=Montserrat:wght@500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0D0D0D; --gold:#D4AF37; --gold-soft:#e8c766; --white:#FFFFFF;
+  --gray:#999999; --gray-dim:#6b6b6b; --line:rgba(212,175,55,0.18);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{overflow-x:hidden; max-width:100%;}
+body{ background:var(--bg); color:var(--white); font-family:'Poppins',sans-serif; font-weight:300; min-height:100vh; overflow-x:hidden; }
+h1,h2{ font-family:'Playfair Display',serif; font-weight:600; }
+.eyebrow{ font-family:'Montserrat',sans-serif; font-weight:600; font-size:0.68rem; letter-spacing:3px; text-transform:uppercase; color:var(--gold); }
+.container{ max-width:1000px; margin:0 auto; padding:50px 24px; }
+
+#loginScreen{ min-height:100vh; display:flex; align-items:center; justify-content:center;
+  background: radial-gradient(ellipse at 30% 20%, rgba(74,20,32,0.35), transparent 55%), linear-gradient(180deg,#0a0908,#0D0D0D); padding:24px; }
+.login-box{ width:400px; max-width:100%; padding:40px 32px; text-align:center; border:1px solid var(--line); background:rgba(255,255,255,0.03); backdrop-filter:blur(10px); }
+.login-box h1{ font-size:1.5rem; margin:14px 0 8px; }
+.login-box p.note{ color:var(--gray-dim); font-size:0.82rem; margin-bottom:26px; }
+.login-box input{ width:100%; background:rgba(255,255,255,0.03); border:1px solid var(--line); color:var(--white); padding:13px 14px; margin-bottom:14px; font-family:'Poppins',sans-serif; text-transform:uppercase; }
+.login-box input:focus{ outline:none; border-color:var(--gold); }
+.login-box button{ width:100%; background:var(--gold); color:#0D0D0D; border:none; padding:14px; font-size:0.75rem; letter-spacing:2px; text-transform:uppercase; font-weight:600; margin-top:6px; cursor:pointer; }
+.login-box button:hover{ background:var(--gold-soft); }
+.login-box button:disabled{ opacity:0.6; cursor:default; }
+.login-err{ color:#e07a70; font-size:0.8rem; margin-top:14px; min-height:18px; }
+
+#gallery{ display:none; }
+#gallery.show{ display:block; }
+.gal-header{ text-align:center; margin-bottom:40px; }
+.gal-header h1{ font-size:2rem; margin:14px 0 8px; }
+.gal-header p{ color:var(--gray); font-size:0.9rem; }
+.gal-toolbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:14px; }
+.gal-count{ font-family:'Montserrat',sans-serif; font-size:0.75rem; color:var(--gray); letter-spacing:0.5px; }
+.gal-count b{ color:var(--gold); }
+.submit-sel-btn{ background:var(--gold); color:#0D0D0D; border:none; padding:13px 28px; font-family:'Montserrat',sans-serif; font-size:0.72rem; letter-spacing:1.5px; text-transform:uppercase; font-weight:600; cursor:pointer; }
+.submit-sel-btn:hover{ background:var(--gold-soft); }
+.submit-sel-btn:disabled{ opacity:0.5; cursor:default; }
+
+.photo-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; }
+.photo-item{ position:relative; aspect-ratio:1; overflow:hidden; border:2px solid var(--line); cursor:pointer; background:#161412; transition:.25s; }
+.photo-item img{ width:100%; height:100%; object-fit:cover; display:block; }
+.photo-item.selected{ border-color:var(--gold); }
+.photo-item .check{
+  position:absolute; top:10px; right:10px; width:28px; height:28px; border-radius:50%;
+  background:rgba(13,13,13,0.7); border:1.5px solid var(--gold); display:flex; align-items:center; justify-content:center;
+  opacity:0; transition:opacity .2s;
+}
+.photo-item.selected .check{ opacity:1; background:var(--gold); }
+.photo-item .check svg{ width:15px; height:15px; stroke:var(--gold); fill:none; stroke-width:3; }
+.photo-item.selected .check svg{ stroke:#0D0D0D; }
+.photo-item:hover{ border-color:var(--gold-soft); }
+
+.empty-note{ text-align:center; color:var(--gray-dim); padding:60px 20px; font-size:0.9rem; }
+.confirm-banner{ display:none; border:1px solid var(--gold); background:rgba(212,175,55,0.08); padding:18px 20px; text-align:center; color:var(--gold); font-size:0.9rem; margin-top:24px; }
+.confirm-banner.show{ display:block; }
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-box">
+    <span class="eyebrow">Private Gallery</span>
+    <h1>View Your Photos</h1>
+    <p class="note">Enter the Booking ID and Access Code your photographer shared with you.</p>
+    <input type="text" id="bookingIdInput" placeholder="Booking ID (e.g. VMC-AB12CD)" autocomplete="off">
+    <input type="text" id="accessCodeInput" placeholder="Access Code" autocomplete="off">
+    <button id="loginBtn">View Gallery</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<div id="gallery">
+  <div class="container">
+    <div class="gal-header">
+      <span class="eyebrow">Vision Mixing Centre</span>
+      <h1 id="clientGreeting">Your Photo Gallery</h1>
+      <p>Tap the photos you'd like included in your final album or edits, then submit your selection below.</p>
+    </div>
+    <div class="gal-toolbar">
+      <div class="gal-count"><b id="selCount">0</b> photo(s) selected</div>
+      <button class="submit-sel-btn" id="submitSelBtn">Submit My Selection</button>
+    </div>
+    <div class="photo-grid" id="photoGrid"></div>
+    <div class="confirm-banner" id="confirmBanner"></div>
+  </div>
+</div>
+
+<script>
+let currentBookingId = '';
+let currentCode = '';
+let photos = [];
+
+document.getElementById('loginBtn').addEventListener('click', loadGallery);
+document.getElementById('accessCodeInput').addEventListener('keydown', e=>{ if(e.key==='Enter') loadGallery(); });
+
+async function loadGallery(){
+  const bookingId = document.getElementById('bookingIdInput').value.trim();
+  const code = document.getElementById('accessCodeInput').value.trim();
+  const err = document.getElementById('loginErr');
+  const btn = document.getElementById('loginBtn');
+  if(!bookingId || !code){ err.textContent = 'Please enter both fields.'; return; }
+  btn.disabled = true; btn.textContent = 'Loading...';
+  err.textContent = '';
+  try{
+    const res = await fetch('/.netlify/functions/gallery-fetch', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ bookingId, code })
+    });
+    const data = await res.json();
+    if(!res.ok || !data.ok){
+      err.textContent = data.error || 'Something went wrong. Please check your details.';
+      btn.disabled = false; btn.textContent = 'View Gallery';
+      return;
+    }
+    currentBookingId = bookingId; currentCode = code; photos = data.photos || [];
+    document.getElementById('clientGreeting').textContent = data.clientName ? (data.clientName + "'s Photo Gallery") : 'Your Photo Gallery';
+    renderGrid();
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('gallery').classList.add('show');
+  } catch(e){
+    err.textContent = 'Could not reach the gallery service. Please try again.';
+    btn.disabled = false; btn.textContent = 'View Gallery';
+  }
+}
+
+function renderGrid(){
+  const grid = document.getElementById('photoGrid');
+  if(!photos.length){
+    grid.innerHTML = '';
+    document.querySelector('.gal-toolbar').style.display = 'none';
+    grid.parentElement.insertAdjacentHTML('beforeend', '<div class="empty-note">No photos have been uploaded to your gallery yet. Please check back soon.</div>');
+    return;
+  }
+  grid.innerHTML = photos.map(function(p){
+    return '<div class="photo-item ' + (p.selected ? 'selected' : '') + '" data-id="' + p.id + '">' +
+      '<img src="' + p.url + '" loading="lazy" alt="Wedding photo">' +
+      '<div class="check"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>' +
+      '</div>';
+  }).join('');
+  grid.querySelectorAll('.photo-item').forEach(function(item){
+    item.addEventListener('click', function(){
+      item.classList.toggle('selected');
+      updateCount();
+    });
+  });
+  updateCount();
+}
+
+function updateCount(){
+  const count = document.querySelectorAll('.photo-item.selected').length;
+  document.getElementById('selCount').textContent = count;
+}
+
+document.getElementById('submitSelBtn').addEventListener('click', async function(){
+  const selectedIds = [...document.querySelectorAll('.photo-item.selected')].map(function(el){ return el.dataset.id; });
+  this.disabled = true; this.textContent = 'Saving...';
+  try{
+    const res = await fetch('/.netlify/functions/gallery-select', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ bookingId: currentBookingId, code: currentCode, selectedIds: selectedIds })
+    });
+    const data = await res.json();
+    const banner = document.getElementById('confirmBanner');
+    if(res.ok && data.ok){
+      banner.innerHTML = '<b>Selection saved!</b> You selected ' + data.count + ' photo(s). Our team has been notified.';
+    } else {
+      banner.innerHTML = '<b>Could not save your selection.</b> Please try again or contact us on WhatsApp.';
+    }
+    banner.classList.add('show');
+  } catch(e){
+    const banner = document.getElementById('confirmBanner');
+    banner.innerHTML = '<b>Could not save your selection.</b> Please check your connection and try again.';
+    banner.classList.add('show');
+  }
+  this.disabled = false; this.textContent = 'Submit My Selection';
+});
+</script>
+</body>
+</html>
