@@ -772,14 +772,16 @@ footer{ border-top:1px solid var(--line); padding:70px 0 30px;}
     </div>
     <div class="video-embed-wrap">
       <iframe
-        src="https://www.youtube.com/embed/videoseries?list=UU4ZUE1KIJckfEok1-3xsYNA"
+        id="ytFrame"
+        data-src="https://www.youtube.com/embed/videoseries?list=UU4ZUE1KIJckfEok1-3xsYNA&mute=1&playsinline=1&enablejsapi=1&rel=0&modestbranding=1&loop=1"
         title="vMc Creation Network — Latest Videos"
         frameborder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowfullscreen
-        loading="lazy">
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen>
       </iframe>
     </div>
+    <p style="text-align:center; margin-top:14px; font-size:0.78rem; color:var(--gray-dim);">Plays muted automatically — tap the speaker icon on the video to turn the sound on.</p>
     <div style="text-align:center; margin-top:26px;">
       <a class="btn btn-outline" href="https://youtube.com/@vmccreationnetwork" target="_blank" rel="noopener">Visit Our YouTube Channel</a>
     </div>
@@ -1545,6 +1547,47 @@ document.addEventListener('click', (e)=>{
     document.getElementById('themePanel').classList.remove('open');
   }
 });
+</script>
+<script>
+/* ---------- YouTube: start playing (muted) when the video scrolls into view ---------- */
+(function(){
+  var frame = document.getElementById('ytFrame');
+  if(!frame) return;
+  var base = frame.getAttribute('data-src');
+  if(location.protocol.indexOf('http') === 0){ base += '&origin=' + encodeURIComponent(location.origin); }
+  // Very old browsers: just show the normal video, no autoplay
+  if(!('IntersectionObserver' in window)){ frame.src = base; return; }
+
+  var loaded = false, wasPlaying = false, state = -1;
+
+  function send(func){
+    try{ frame.contentWindow.postMessage(JSON.stringify({ event:'command', func:func, args:[] }), '*'); }catch(e){}
+  }
+  // Ask the player to report what it is doing, so we know if the visitor paused it themselves
+  frame.addEventListener('load', function(){
+    try{ frame.contentWindow.postMessage(JSON.stringify({ event:'listening', id:1 }), '*'); }catch(e){}
+  });
+  window.addEventListener('message', function(e){
+    if(e.source !== frame.contentWindow) return;
+    var d = e.data;
+    if(typeof d === 'string'){ try{ d = JSON.parse(d); }catch(x){ return; } }
+    if(!d) return;
+    if(d.event === 'onStateChange' && typeof d.info === 'number'){ state = d.info; }
+    else if(d.event === 'infoDelivery' && d.info && typeof d.info.playerState === 'number'){ state = d.info.playerState; }
+  });
+
+  new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        if(!loaded){ loaded = true; frame.src = base + '&autoplay=1'; }   // first time: load and play
+        else if(wasPlaying){ send('playVideo'); }                          // came back: resume if it was playing
+      } else if(loaded){
+        wasPlaying = (state === 1);                                        // 1 = playing
+        if(wasPlaying){ send('pauseVideo'); }                              // scrolled away: pause
+      }
+    });
+  }, { threshold: 0.5 }).observe(frame.parentElement);
+})();
 </script>
 </body>
 </html>
